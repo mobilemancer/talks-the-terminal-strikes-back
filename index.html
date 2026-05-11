@@ -7,61 +7,47 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app-shell">
-    <header class="app-header" aria-label="Speaker controls">
-      <div>
-        <p class="eyebrow">Speaker Notes</p>
-        <h1>Slide Companion</h1>
-      </div>
-
-      <aside class="timer-display" aria-live="polite" aria-atomic="true">
-        <div class="timer-row">
-          <span class="timer-label">Elapsed</span>
-          <strong id="elapsedTime">00:00</strong>
-        </div>
-        <div class="timer-row">
-          <span class="timer-label">Remaining</span>
-          <strong id="remainingTime">--:--</strong>
-        </div>
-        <div class="timer-row">
-          <span class="timer-label">Mean / slide</span>
-          <strong id="meanTime">--:--</strong>
-        </div>
-        <button id="timerToggle" class="secondary-button" type="button">Start timer</button>
-      </aside>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>Speaker Notes</h1>
+      <p id="deckName" class="deck-name" role="button" tabindex="0" aria-label="Open deck selector">Deck: Choose a deck</p>
     </header>
 
-    <main class="stage-layout">
-      <section class="slide-stage" id="slideStage" aria-live="polite">
-        <div class="slide-meta">
-          <span id="slideCounter">0 / 0</span>
-          <span id="selectedFileLabel">No file loaded</span>
-        </div>
-        <article class="slide-card">
-          <header>
-            <p class="slide-kicker" id="slideKicker">Ready</p>
-            <h2 id="slideTitle">Choose a slide file to begin</h2>
-          </header>
-          <div id="slideContent" class="slide-content">
-            <p>Open a slide deck from the startup dialog to render your notes here.</p>
-          </div>
-          <section id="speakerNotes" class="speaker-notes hidden" aria-label="Speaker notes"></section>
-        </article>
-      </section>
+    <div class="timer-row" aria-live="polite" aria-atomic="true">
+      <div class="timer-info">
+        <span class="timer-stat">
+          <span class="timer-label">Elapsed</span>
+          <strong id="elapsedTime">00:00</strong>
+        </span>
+        <span class="timer-stat">
+          <span class="timer-label">Remaining</span>
+          <strong id="remainingTime">--:--</strong>
+        </span>
+        <span class="timer-stat">
+          <span class="timer-label">Mean / slide</span>
+          <strong id="meanTime">--:--</strong>
+        </span>
+      </div>
+      <button id="timerToggle" class="timer-control" type="button">Start</button>
+    </div>
 
-      <nav class="nav-bar" aria-label="Slide navigation">
-        <button id="prevSlide" type="button" class="nav-button">← Previous</button>
-        <button id="openFiles" type="button" class="secondary-button">Change file</button>
-        <button id="nextSlide" type="button" class="nav-button">Next →</button>
-      </nav>
-    </main>
+    <article class="slide-card" id="slideCard" aria-live="polite">
+      <header class="slide-card-header">
+        <p class="slide-kicker" id="slideKicker">Ready</p>
+        <h2 id="slideTitle">Choose a slide file to begin</h2>
+      </header>
+      <div id="slideContent" class="slide-content">
+        <p>Open a slide deck from the startup dialog to render your notes here.</p>
+      </div>
+      <section id="speakerNotes" class="speaker-notes hidden" aria-label="Speaker notes"></section>
+    </article>
   </div>
 
   <div id="fileSelectorModal" class="modal-backdrop is-open" role="dialog" aria-modal="true" aria-labelledby="fileModalTitle">
     <section class="modal-card">
       <header class="modal-header">
         <div>
-          <p class="eyebrow">Startup</p>
+          <p class="eyebrow">Decks</p>
           <h2 id="fileModalTitle">Choose slide file</h2>
         </div>
         <button id="refreshFiles" class="secondary-button" type="button">Refresh</button>

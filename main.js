@@ -14,20 +14,16 @@ const state = {
 };
 
 const elements = {
+  deckName: document.getElementById('deckName'),
   elapsedTime: document.getElementById('elapsedTime'),
   remainingTime: document.getElementById('remainingTime'),
   meanTime: document.getElementById('meanTime'),
   timerToggle: document.getElementById('timerToggle'),
-  slideStage: document.getElementById('slideStage'),
-  slideCounter: document.getElementById('slideCounter'),
-  selectedFileLabel: document.getElementById('selectedFileLabel'),
+  slideCard: document.getElementById('slideCard'),
   slideKicker: document.getElementById('slideKicker'),
   slideTitle: document.getElementById('slideTitle'),
   slideContent: document.getElementById('slideContent'),
   speakerNotes: document.getElementById('speakerNotes'),
-  prevSlide: document.getElementById('prevSlide'),
-  nextSlide: document.getElementById('nextSlide'),
-  openFiles: document.getElementById('openFiles'),
   fileSelectorModal: document.getElementById('fileSelectorModal'),
   fileStatus: document.getElementById('fileStatus'),
   fileList: document.getElementById('fileList'),
@@ -41,23 +37,23 @@ const elements = {
 
 function init() {
   bindEvents();
+  updateDeckName();
   updateTimerDisplay();
   renderSlide();
   void loadSlideFiles();
 }
 
 function bindEvents() {
-  elements.prevSlide.addEventListener('click', () => goToSlide(state.currentSlide - 1));
-  elements.nextSlide.addEventListener('click', () => goToSlide(state.currentSlide + 1));
-  elements.openFiles.addEventListener('click', () => openModal(elements.fileSelectorModal));
+  elements.deckName.addEventListener('click', () => void loadSlideFiles());
+  elements.deckName.addEventListener('keydown', onDeckNameKeyDown);
   elements.refreshFiles.addEventListener('click', () => void loadSlideFiles());
   elements.timerToggle.addEventListener('click', onTimerToggle);
   elements.timerForm.addEventListener('submit', onTimerSubmit);
   elements.skipTimer.addEventListener('click', closeTimerModal);
 
   document.addEventListener('keydown', onKeyDown);
-  elements.slideStage.addEventListener('touchstart', onTouchStart, { passive: true });
-  elements.slideStage.addEventListener('touchend', onTouchEnd, { passive: true });
+  elements.slideCard.addEventListener('touchstart', onTouchStart, { passive: true });
+  elements.slideCard.addEventListener('touchend', onTouchEnd, { passive: true });
 }
 
 async function loadSlideFiles() {
@@ -161,6 +157,7 @@ async function loadSlideFile(filename) {
     state.slides = slides;
     state.currentSlide = 0;
     resetTimer();
+    updateDeckName();
     closeModal(elements.fileSelectorModal);
     renderSlide();
     openTimerModal();
@@ -246,11 +243,8 @@ function renderSlide() {
   const totalSlides = state.slides.length;
   const currentSlide = state.slides[state.currentSlide];
 
-  elements.slideCounter.textContent = `${totalSlides ? state.currentSlide + 1 : 0} / ${totalSlides}`;
-  elements.selectedFileLabel.textContent = state.selectedFile || 'No file loaded';
-  elements.prevSlide.disabled = state.currentSlide <= 0;
-  elements.nextSlide.disabled = !totalSlides || state.currentSlide >= totalSlides - 1;
   elements.timerToggle.disabled = !totalSlides;
+  elements.slideCard.scrollTop = 0;
 
   if (!currentSlide) {
     elements.slideKicker.textContent = 'Ready';
@@ -272,7 +266,7 @@ function renderSlide() {
     ? headlines
     : [`Slide ${state.currentSlide + 1}`];
 
-  elements.slideKicker.textContent = state.deckTitle || `Slide ${state.currentSlide + 1}`;
+  elements.slideKicker.textContent = `Slide ${state.currentSlide + 1} / ${totalSlides}`;
   elements.slideTitle.textContent = title;
   elements.slideContent.replaceChildren();
 
@@ -323,6 +317,12 @@ function createParagraph(text) {
   return paragraph;
 }
 
+function updateDeckName() {
+  const deckLabel = [state.deckTitle, state.selectedFile].filter(Boolean).join(' • ') || 'Choose a deck';
+  elements.deckName.textContent = `Deck: ${deckLabel}`;
+  elements.deckName.title = deckLabel;
+}
+
 function goToSlide(index) {
   if (!state.slides.length) {
     return;
@@ -338,9 +338,22 @@ function goToSlide(index) {
   renderSlide();
 }
 
+function onDeckNameKeyDown(event) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    void loadSlideFiles();
+  }
+}
+
 function onKeyDown(event) {
   const activeTag = document.activeElement?.tagName;
   if (activeTag === 'INPUT') {
+    return;
+  }
+
+  if (event.key.toLowerCase() === 'f' || event.key.toLowerCase() === 'o') {
+    event.preventDefault();
+    void loadSlideFiles();
     return;
   }
 
@@ -463,7 +476,7 @@ function resetTimer() {
   state.sessionLength = 0;
   state.elapsedTime = 0;
   state.timerStartedAt = null;
-  elements.timerToggle.textContent = 'Start timer';
+  elements.timerToggle.textContent = 'Start';
   updateTimerDisplay();
 }
 
@@ -473,7 +486,7 @@ function startTimerInterval() {
     state.elapsedTime = Math.floor((Date.now() - state.timerStartedAt) / 1000);
     updateTimerDisplay();
   }, 1000);
-  elements.timerToggle.textContent = 'Pause timer';
+  elements.timerToggle.textContent = 'Pause';
 }
 
 function updateTimerDisplay() {
@@ -496,25 +509,20 @@ function updateTimerDisplay() {
   elements.meanTime.textContent = meanSeconds === null ? '--:--' : formatDuration(meanSeconds);
 
   if (!state.sessionLength) {
-    elements.timerToggle.textContent = 'Start timer';
+    elements.timerToggle.textContent = 'Start';
   } else if (state.timerRunning) {
-    elements.timerToggle.textContent = 'Pause timer';
+    elements.timerToggle.textContent = 'Pause';
   } else {
-    elements.timerToggle.textContent = 'Resume timer';
+    elements.timerToggle.textContent = 'Resume';
   }
 }
 
 function formatDuration(totalSeconds) {
   const safeSeconds = Math.max(0, Math.floor(totalSeconds));
-  const hours = Math.floor(safeSeconds / 3600);
-  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const totalMinutes = Math.floor(safeSeconds / 60);
   const seconds = safeSeconds % 60;
 
-  if (hours > 0) {
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  }
-
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  return `${String(totalMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
 async function fetchResponse(url) {
