@@ -168,16 +168,33 @@ ul {
 }
 
 .timer-control {
-  margin-left: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem 0.6rem;
   min-height: 1.875rem;
   font-size: 0.8rem;
   line-height: 1;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+#timerToggle {
+  margin-left: auto;
+}
+
+.timer-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.timer-control-secondary {
+  background: rgba(15, 107, 255, 0.08);
+  color: var(--text);
+  border: 1px solid rgba(15, 107, 255, 0.16);
 }
 
 .secondary-button,
@@ -388,6 +405,10 @@ input[type="number"] {
     min-height: 2.625rem;
     font-size: 0.95rem;
   }
+
+  .timer-actions {
+    gap: 0.5rem;
+  }
 }
 
 @media (max-width: 640px) {
@@ -398,6 +419,15 @@ input[type="number"] {
   .timer-row,
   .timer-info {
     gap: 0.35rem;
+  }
+
+  .timer-actions {
+    gap: 0.25rem;
+  }
+
+  .timer-control {
+    padding-inline: 0.5rem;
+    font-size: 0.76rem;
   }
 
   .timer-stat {

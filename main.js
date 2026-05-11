@@ -1,6 +1,6 @@
 const state = {
   currentSlide: 0,
-  timerRunning: false,
+  timerState: 'idle',
   sessionLength: 0,
   elapsedTime: 0,
   slides: [],
@@ -19,6 +19,9 @@ const elements = {
   remainingTime: document.getElementById('remainingTime'),
   meanTime: document.getElementById('meanTime'),
   timerToggle: document.getElementById('timerToggle'),
+  timerActions: document.getElementById('timerActions'),
+  pauseResumeBtn: document.getElementById('pauseResumeBtn'),
+  stopBtn: document.getElementById('stopBtn'),
   slideCard: document.getElementById('slideCard'),
   slideKicker: document.getElementById('slideKicker'),
   slideTitle: document.getElementById('slideTitle'),
@@ -47,7 +50,9 @@ function bindEvents() {
   elements.deckName.addEventListener('click', () => void loadSlideFiles());
   elements.deckName.addEventListener('keydown', onDeckNameKeyDown);
   elements.refreshFiles.addEventListener('click', () => void loadSlideFiles());
-  elements.timerToggle.addEventListener('click', onTimerToggle);
+  elements.timerToggle.addEventListener('click', onTimerStartClick);
+  elements.pauseResumeBtn.addEventListener('click', onPauseResumeClick);
+  elements.stopBtn.addEventListener('click', onStopClick);
   elements.timerForm.addEventListener('submit', onTimerSubmit);
   elements.skipTimer.addEventListener('click', closeTimerModal);
 
@@ -272,7 +277,6 @@ function renderSlide() {
   const totalSlides = state.slides.length;
   const currentSlide = state.slides[state.currentSlide];
 
-  elements.timerToggle.disabled = !totalSlides;
   elements.slideCard.scrollTop = 0;
 
   if (!currentSlide) {
@@ -461,10 +465,6 @@ function onTouchEnd(event) {
 }
 
 function openTimerModal() {
-  if (state.currentSlide !== 0) {
-    return;
-  }
-
   openModal(elements.timerModal);
   elements.sessionLength.focus();
   elements.sessionLength.select();
@@ -487,35 +487,45 @@ function onTimerSubmit(event) {
   closeTimerModal();
 }
 
-function onTimerToggle() {
-  if (!state.slides.length) {
+function onTimerStartClick() {
+  if (!state.slides.length || state.timerState !== 'idle') {
     return;
   }
 
-  if (!state.sessionLength) {
-    openTimerModal();
-    return;
-  }
+  openTimerModal();
+}
 
-  if (state.timerRunning) {
+function onPauseResumeClick() {
+  if (state.timerState === 'running') {
     pauseTimer();
-  } else {
+    return;
+  }
+
+  if (state.timerState === 'paused') {
     resumeTimer();
   }
+}
+
+function onStopClick() {
+  if (state.timerState === 'idle') {
+    return;
+  }
+
+  resetTimer();
 }
 
 function startTimer(minutes) {
   state.sessionLength = minutes * 60;
   state.elapsedTime = 0;
   state.timerStartedAt = Date.now();
-  state.timerRunning = true;
+  state.timerState = 'running';
   startTimerInterval();
   updateTimerDisplay();
 }
 
 function resumeTimer() {
   state.timerStartedAt = Date.now() - state.elapsedTime * 1000;
-  state.timerRunning = true;
+  state.timerState = 'running';
   startTimerInterval();
   updateTimerDisplay();
 }
@@ -525,18 +535,17 @@ function pauseTimer() {
   state.timerIntervalId = null;
   state.elapsedTime = Math.floor((Date.now() - state.timerStartedAt) / 1000);
   state.timerStartedAt = null;
-  state.timerRunning = false;
+  state.timerState = 'paused';
   updateTimerDisplay();
 }
 
 function resetTimer() {
   clearInterval(state.timerIntervalId);
   state.timerIntervalId = null;
-  state.timerRunning = false;
+  state.timerState = 'idle';
   state.sessionLength = 0;
   state.elapsedTime = 0;
   state.timerStartedAt = null;
-  elements.timerToggle.textContent = 'Start';
   updateTimerDisplay();
 }
 
@@ -546,11 +555,22 @@ function startTimerInterval() {
     state.elapsedTime = Math.floor((Date.now() - state.timerStartedAt) / 1000);
     updateTimerDisplay();
   }, 1000);
-  elements.timerToggle.textContent = 'Pause';
+}
+
+function updateTimerControls() {
+  const hasSlides = state.slides.length > 0;
+  const isActive = state.timerState !== 'idle';
+
+  elements.timerToggle.disabled = !hasSlides;
+  elements.timerToggle.classList.toggle('hidden', isActive);
+  elements.timerActions.classList.toggle('hidden', !isActive);
+  elements.pauseResumeBtn.disabled = !isActive;
+  elements.stopBtn.disabled = !isActive;
+  elements.pauseResumeBtn.textContent = state.timerState === 'paused' ? 'Resume' : 'Pause';
 }
 
 function updateTimerDisplay() {
-  if (state.timerRunning && state.timerStartedAt) {
+  if (state.timerState === 'running' && state.timerStartedAt) {
     state.elapsedTime = Math.floor((Date.now() - state.timerStartedAt) / 1000);
   }
 
@@ -567,14 +587,7 @@ function updateTimerDisplay() {
       ? formatDuration(remainingSeconds)
       : `-${formatDuration(Math.abs(remainingSeconds))}`;
   elements.meanTime.textContent = meanSeconds === null ? '--:--' : formatDuration(meanSeconds);
-
-  if (!state.sessionLength) {
-    elements.timerToggle.textContent = 'Start';
-  } else if (state.timerRunning) {
-    elements.timerToggle.textContent = 'Pause';
-  } else {
-    elements.timerToggle.textContent = 'Resume';
-  }
+  updateTimerControls();
 }
 
 function formatDuration(totalSeconds) {

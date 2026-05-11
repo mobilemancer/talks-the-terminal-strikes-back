@@ -1,10 +1,11 @@
 from pathlib import Path
 import json
+import os
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 from playwright.sync_api import sync_playwright
 
-BASE_URL = 'https://zealous-desert-09aaa9703.7.azurestaticapps.net'
+BASE_URL = os.getenv('BASE_URL', 'https://zealous-desert-09aaa9703.7.azurestaticapps.net').rstrip('/')
 OUT_DIR = Path(r'D:\github\public\talks-the-terminal-strikes-back\verification_artifacts')
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -129,7 +130,8 @@ def collect_browser_results(playwright):
         'slide_title': page.locator('#slideTitle').inner_text(),
         'paragraphs': page.locator('#slideContent p').all_inner_texts(),
         'bullets': page.locator('#slideContent li').all_inner_texts(),
-        'timer_button_text': page.locator('#timerToggle').inner_text(),
+        'start_button_text': page.locator('#timerToggle').inner_text(),
+        'timer_actions_visible': page.locator('#timerActions').is_visible(),
         'layout': layout_metrics(page),
     }
 
@@ -141,16 +143,56 @@ def collect_browser_results(playwright):
         'elapsed': page.locator('#elapsedTime').inner_text(),
         'remaining': page.locator('#remainingTime').inner_text(),
         'mean': page.locator('#meanTime').inner_text(),
-        'button': page.locator('#timerToggle').inner_text(),
+        'pause_resume': page.locator('#pauseResumeBtn').inner_text(),
+        'stop_visible': page.locator('#stopBtn').is_visible(),
+        'start_visible': page.locator('#timerToggle').is_visible(),
     }
     page.wait_for_timeout(1200)
     timer_snapshot_2 = {
         'elapsed': page.locator('#elapsedTime').inner_text(),
         'remaining': page.locator('#remainingTime').inner_text(),
         'mean': page.locator('#meanTime').inner_text(),
-        'button': page.locator('#timerToggle').inner_text(),
+        'pause_resume': page.locator('#pauseResumeBtn').inner_text(),
+        'stop_visible': page.locator('#stopBtn').is_visible(),
+        'start_visible': page.locator('#timerToggle').is_visible(),
     }
-    results['timer'] = {'after_2s': timer_snapshot_1, 'after_3s': timer_snapshot_2}
+    page.click('#pauseResumeBtn')
+    paused_elapsed = page.locator('#elapsedTime').inner_text()
+    page.wait_for_timeout(1200)
+    paused_snapshot = {
+        'elapsed': page.locator('#elapsedTime').inner_text(),
+        'remaining': page.locator('#remainingTime').inner_text(),
+        'mean': page.locator('#meanTime').inner_text(),
+        'pause_resume': page.locator('#pauseResumeBtn').inner_text(),
+        'stop_visible': page.locator('#stopBtn').is_visible(),
+        'elapsed_frozen': page.locator('#elapsedTime').inner_text() == paused_elapsed,
+    }
+    page.click('#pauseResumeBtn')
+    page.wait_for_timeout(1200)
+    resumed_snapshot = {
+        'elapsed': page.locator('#elapsedTime').inner_text(),
+        'remaining': page.locator('#remainingTime').inner_text(),
+        'mean': page.locator('#meanTime').inner_text(),
+        'pause_resume': page.locator('#pauseResumeBtn').inner_text(),
+        'stop_visible': page.locator('#stopBtn').is_visible(),
+    }
+    page.click('#stopBtn')
+    page.wait_for_timeout(300)
+    stopped_snapshot = {
+        'elapsed': page.locator('#elapsedTime').inner_text(),
+        'remaining': page.locator('#remainingTime').inner_text(),
+        'mean': page.locator('#meanTime').inner_text(),
+        'start_visible': page.locator('#timerToggle').is_visible(),
+        'start_text': page.locator('#timerToggle').inner_text(),
+        'timer_actions_visible': page.locator('#timerActions').is_visible(),
+    }
+    results['timer'] = {
+        'after_2s': timer_snapshot_1,
+        'after_3s': timer_snapshot_2,
+        'paused': paused_snapshot,
+        'resumed': resumed_snapshot,
+        'stopped': stopped_snapshot,
+    }
     results['screenshots'].append(record_page(page, 'agenda-running-timer', 'agenda-running-timer.png'))
 
     page.keyboard.press('ArrowRight')
@@ -178,6 +220,10 @@ def collect_browser_results(playwright):
         'title': page.locator('#slideTitle').inner_text(),
     }
     timer_box = page.locator('.timer-row').bounding_box()
+    page.keyboard.press('ArrowRight')
+    page.wait_for_timeout(300)
+    page.click('#timerToggle')
+    page.wait_for_selector('#timerModal.is-open')
     results['navigation'] = {
         'after_arrow_right': after_right,
         'after_arrow_left': after_left,
@@ -185,7 +231,10 @@ def collect_browser_results(playwright):
         'after_swipe_right': after_swipe_right,
         'timer_row_visible': timer_box is not None,
         'timer_row_box': timer_box,
+        'restart_modal_visible_on_slide_2': page.locator('#timerModal').evaluate("el => el.classList.contains('is-open')"),
     }
+    page.click('#skipTimer')
+    page.locator('#timerModal').wait_for(state='hidden')
 
     small = browser.new_context(viewport={'width': 1024, 'height': 420})
     small_page = small.new_page()
