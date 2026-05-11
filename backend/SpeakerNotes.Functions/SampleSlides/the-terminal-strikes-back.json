@@ -98,6 +98,42 @@
       ]
     },
     {
+      "headlines": "Enterprise-Managed Extensions",
+      "bullets": [
+        "Organizations can auto-install plugins for all developers",
+        "Enforce consistent tooling and workflows",
+        "Centralized governance for agents, hooks, and MCP configs",
+        "Ideal for regulated or large engineering teams"
+      ]
+    },
+    {
+      "headlines": "Background Tasks",
+      "bullets": [
+        "Run long tasks in the cloud without blocking your terminal",
+        "Continue working locally while Copilot executes remotely",
+        "Perfect for builds, migrations, and large refactors",
+        "Supports status checks and result retrieval"
+      ]
+    },
+    {
+      "headlines": "Hooks (Extend Copilot's Behavior)",
+      "bullets": [
+        "Intercept and reshape user prompts before they reach any agent",
+        "Add context, enforce rules, or auto-trigger skills",
+        "Build safety guards, macros, and custom routing logic",
+        "Can optionally run code locally without calling an LLM"
+      ]
+    },
+    {
+      "headlines": "Self-Improvement (Experimental Mode)",
+      "bullets": [
+        "Copilot can scaffold its own extensions (skills, hooks, tools)",
+        "Can generate hooks that run without any LLM call",
+        "Can modify and improve the extensions it just created",
+        "Enables recursive 'Copilot improves Copilot' workflows"
+      ]
+    },
+    {
       "headlines": "Session Wrap-up",
       "bullets": [
         "/chronicle standup - Summary of work done",
