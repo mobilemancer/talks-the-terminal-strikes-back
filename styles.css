@@ -104,28 +104,33 @@ ul {
 
 .timer-row {
   min-height: 3rem;
+  width: 100%;
   border-radius: 18px;
   padding: 0.5rem 0.8rem;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex: 0 0 auto;
 }
 
 .timer-info {
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.9rem;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
   min-width: 0;
+  overflow: hidden;
 }
 
 .timer-stat {
   display: inline-flex;
+  flex: 1 1 0;
   align-items: baseline;
   gap: 0.38rem;
   min-width: 0;
+  overflow: hidden;
 }
 
 .timer-label {
@@ -133,11 +138,16 @@ ul {
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .timer-stat strong {
-  font-size: 2rem;
+  font-size: clamp(1.35rem, 4.4vw, 2rem);
   letter-spacing: -0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .timer-control,
@@ -158,7 +168,7 @@ ul {
 }
 
 .timer-control {
-  justify-self: end;
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -167,6 +177,7 @@ ul {
   font-size: 0.8rem;
   line-height: 1;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .secondary-button,
@@ -369,15 +380,6 @@ input[type="number"] {
   .app-container {
     padding-inline: 0.75rem;
   }
-
-  .timer-row {
-    grid-template-columns: minmax(0, 1fr);
-    align-items: flex-start;
-  }
-
-  .timer-control {
-    justify-self: end;
-  }
 }
 
 @media (min-width: 1280px) {
@@ -391,6 +393,25 @@ input[type="number"] {
 @media (max-width: 640px) {
   .app-header {
     padding: 0.7rem 0.85rem;
+  }
+
+  .timer-row,
+  .timer-info {
+    gap: 0.35rem;
+  }
+
+  .timer-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+
+  .timer-label {
+    font-size: 0.68rem;
+  }
+
+  .timer-stat strong {
+    font-size: clamp(1.15rem, 5vw, 1.45rem);
   }
 
   .slide-card {
