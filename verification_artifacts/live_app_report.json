@@ -1,5 +1,5 @@
 {
-  "base_url": "https://zealous-desert-09aaa9703.7.azurestaticapps.net",
+  "base_url": "http://127.0.0.1:4280",
   "endpoint_checks": {
     "list_slides": {
       "status": 200,
@@ -7,7 +7,7 @@
     },
     "agenda": {
       "status": 200,
-      "body": "{\"Filename\":\"agenda.json\",\"IsValid\":true,\"SlideSet\":{\"Title\":\"Opening Flow\",\"Slides\":[{\"Headlines\":\"The Terminal Strikes Back\",\"Bullets\":[\"CLI-native agent workflows\",\"Context management that scales\",\"Safer shipping with automation\"]},{\"Headlines\":[\"Why now?\",\"Why the terminal?\"],\"Bullets\":[\"Models got faster\",\"Toolchains became scriptable\"]},{\"Headlines\":\"Demo setup\",\"Bullets\":null}]},\"Errors\":[]}"
+      "body": "{\"Filename\":\"agenda.json\",\"IsValid\":true,\"SlideSet\":{\"Title\":\"Opening Flow\",\"Slides\":[{\"Headlines\":\"The Terminal Strikes Back\",\"Bullets\":[\"CLI-native agent workflows\",\"Context management that scales\",\"Safer shipping with automation\"],\"Sections\":null},{\"Headlines\":[\"Why now?\",\"Why the terminal?\"],\"Bullets\":[\"Models got faster\",\"Toolchains became scriptable\"],\"Sections\":null},{\"Headlines\":\"Demo setup\",\"Bullets\":null,\"Sections\":null}]},\"Errors\":[]}"
     },
     "missing": {
       "status": 404,
@@ -42,15 +42,15 @@
     "request_failures": [],
     "api_responses": [
       {
-        "url": "https://zealous-desert-09aaa9703.7.azurestaticapps.net/api/list-slides",
+        "url": "http://127.0.0.1:4280/api/list-slides",
         "status": 200
       },
       {
-        "url": "https://zealous-desert-09aaa9703.7.azurestaticapps.net/api/list-slides",
+        "url": "http://127.0.0.1:4280/api/list-slides",
         "status": 200
       },
       {
-        "url": "https://zealous-desert-09aaa9703.7.azurestaticapps.net/api/get-slide?filename=agenda.json",
+        "url": "http://127.0.0.1:4280/api/get-slide?filename=agenda.json",
         "status": 200
       }
     ],
@@ -68,13 +68,15 @@
           "height": 900
         },
         "headerHeight": 62.5,
-        "timerHeight": 61.375,
-        "slideCardHeight": 728.125,
-        "slideCardTop": 157.875,
+        "timerHeight": 61,
+        "slideCardHeight": 728.5,
+        "slideCardTop": 157.5,
         "titleFontSize": "64px",
         "contentFontSize": "31.36px",
         "buttonTexts": [
           "Start",
+          "Pause",
+          "Stop",
           "Refresh",
           "agenda.json",
           "architecture.json",
@@ -100,20 +102,23 @@
         "Context management that scales",
         "Safer shipping with automation"
       ],
-      "timer_button_text": "Start",
+      "start_button_text": "Start",
+      "timer_actions_visible": false,
       "layout": {
         "viewport": {
           "width": 1280,
           "height": 900
         },
         "headerHeight": 62.5,
-        "timerHeight": 61.375,
-        "slideCardHeight": 728.125,
-        "slideCardTop": 157.875,
+        "timerHeight": 61,
+        "slideCardHeight": 728.5,
+        "slideCardTop": 157.5,
         "titleFontSize": "64px",
         "contentFontSize": "31.36px",
         "buttonTexts": [
           "Start",
+          "Pause",
+          "Stop",
           "Refresh",
           "agenda.json",
           "architecture.json",
@@ -128,13 +133,40 @@
         "elapsed": "00:02",
         "remaining": "00:58",
         "mean": "00:19",
-        "button": "Pause"
+        "pause_resume": "Pause",
+        "stop_visible": true,
+        "start_visible": false
       },
       "after_3s": {
         "elapsed": "00:03",
         "remaining": "00:57",
         "mean": "00:19",
-        "button": "Pause"
+        "pause_resume": "Pause",
+        "stop_visible": true,
+        "start_visible": false
+      },
+      "paused": {
+        "elapsed": "00:03",
+        "remaining": "00:57",
+        "mean": "00:19",
+        "pause_resume": "Resume",
+        "stop_visible": true,
+        "elapsed_frozen": true
+      },
+      "resumed": {
+        "elapsed": "00:04",
+        "remaining": "00:56",
+        "mean": "00:18",
+        "pause_resume": "Pause",
+        "stop_visible": true
+      },
+      "stopped": {
+        "elapsed": "00:00",
+        "remaining": "--:--",
+        "mean": "--:--",
+        "start_visible": true,
+        "start_text": "Start",
+        "timer_actions_visible": false
       }
     },
     "navigation": {
@@ -159,8 +191,9 @@
         "x": 16,
         "y": 86.5,
         "width": 1248,
-        "height": 61.375
-      }
+        "height": 61
+      },
+      "restart_modal_visible_on_slide_2": true
     },
     "scrolling": {
       "metrics": {
@@ -185,13 +218,15 @@
           "height": 1366
         },
         "headerHeight": 58.96875,
-        "timerHeight": 61.375,
-        "slideCardHeight": 1197.65625,
-        "slideCardTop": 154.34375,
+        "timerHeight": 61,
+        "slideCardHeight": 1198.03125,
+        "slideCardTop": 153.96875,
         "titleFontSize": "51.2px",
         "contentFontSize": "25.088px",
         "buttonTexts": [
           "Start",
+          "Pause",
+          "Stop",
           "Refresh",
           "agenda.json",
           "architecture.json",
