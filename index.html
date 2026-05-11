@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speaker Notes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header" aria-label="Speaker controls">
+      <div>
+        <p class="eyebrow">Speaker Notes</p>
+        <h1>Slide Companion</h1>
+      </div>
+
+      <aside class="timer-display" aria-live="polite" aria-atomic="true">
+        <div class="timer-row">
+          <span class="timer-label">Elapsed</span>
+          <strong id="elapsedTime">00:00</strong>
+        </div>
+        <div class="timer-row">
+          <span class="timer-label">Remaining</span>
+          <strong id="remainingTime">--:--</strong>
+        </div>
+        <div class="timer-row">
+          <span class="timer-label">Mean / slide</span>
+          <strong id="meanTime">--:--</strong>
+        </div>
+        <button id="timerToggle" class="secondary-button" type="button">Start timer</button>
+      </aside>
+    </header>
+
+    <main class="stage-layout">
+      <section class="slide-stage" id="slideStage" aria-live="polite">
+        <div class="slide-meta">
+          <span id="slideCounter">0 / 0</span>
+          <span id="selectedFileLabel">No file loaded</span>
+        </div>
+        <article class="slide-card">
+          <header>
+            <p class="slide-kicker" id="slideKicker">Ready</p>
+            <h2 id="slideTitle">Choose a slide file to begin</h2>
+          </header>
+          <div id="slideContent" class="slide-content">
+            <p>Open a slide deck from the startup dialog to render your notes here.</p>
+          </div>
+          <section id="speakerNotes" class="speaker-notes hidden" aria-label="Speaker notes"></section>
+        </article>
+      </section>
+
+      <nav class="nav-bar" aria-label="Slide navigation">
+        <button id="prevSlide" type="button" class="nav-button">← Previous</button>
+        <button id="openFiles" type="button" class="secondary-button">Change file</button>
+        <button id="nextSlide" type="button" class="nav-button">Next →</button>
+      </nav>
+    </main>
+  </div>
+
+  <div id="fileSelectorModal" class="modal-backdrop is-open" role="dialog" aria-modal="true" aria-labelledby="fileModalTitle">
+    <section class="modal-card">
+      <header class="modal-header">
+        <div>
+          <p class="eyebrow">Startup</p>
+          <h2 id="fileModalTitle">Choose slide file</h2>
+        </div>
+        <button id="refreshFiles" class="secondary-button" type="button">Refresh</button>
+      </header>
+      <p class="modal-copy">Files are loaded from the Azure Functions API.</p>
+      <p id="fileStatus" class="status-text">Loading available slide files…</p>
+      <div id="fileList" class="file-list" role="listbox" aria-label="Available slide files"></div>
+    </section>
+  </div>
+
+  <div id="timerModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="timerModalTitle" aria-hidden="true">
+    <section class="modal-card compact-modal">
+      <header class="modal-header">
+        <div>
+          <p class="eyebrow">Timing</p>
+          <h2 id="timerModalTitle">Set session length</h2>
+        </div>
+      </header>
+      <p class="modal-copy">Start a presentation timer for this deck. The mean time is calculated from the remaining slides.</p>
+      <form id="timerForm" class="timer-form">
+        <label for="sessionLength" class="input-label">Minutes</label>
+        <input id="sessionLength" name="sessionLength" type="number" min="1" step="1" value="30" inputmode="numeric" required>
+        <div class="modal-actions">
+          <button id="skipTimer" class="secondary-button" type="button">Skip</button>
+          <button class="primary-button" type="submit">Start timer</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <template id="fileButtonTemplate">
+    <button type="button" class="file-button"></button>
+  </template>
+
+  <script src="main.js" defer></script>
+</body>
+</html>

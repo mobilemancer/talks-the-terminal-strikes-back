@@ -1,0 +1,20 @@
+{
+  "title": "Closing Notes",
+  "slides": [
+    {
+      "headlines": "Key takeaways",
+      "bullets": [
+        "Use isolated worker for clean DI",
+        "Keep slide JSON simple",
+        "Validate before rendering"
+      ]
+    },
+    {
+      "headlines": [
+        "Questions?",
+        "Let's build"
+      ],
+      "bullets": []
+    }
+  ]
+}

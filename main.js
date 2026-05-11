@@ -1,0 +1,582 @@
+const state = {
+  currentSlide: 0,
+  timerRunning: false,
+  sessionLength: 0,
+  elapsedTime: 0,
+  slides: [],
+  selectedFile: '',
+  deckTitle: '',
+  timerIntervalId: null,
+  timerStartedAt: null,
+  touchStartX: 0,
+  touchStartY: 0,
+  touchStartAt: 0,
+};
+
+const elements = {
+  elapsedTime: document.getElementById('elapsedTime'),
+  remainingTime: document.getElementById('remainingTime'),
+  meanTime: document.getElementById('meanTime'),
+  timerToggle: document.getElementById('timerToggle'),
+  slideStage: document.getElementById('slideStage'),
+  slideCounter: document.getElementById('slideCounter'),
+  selectedFileLabel: document.getElementById('selectedFileLabel'),
+  slideKicker: document.getElementById('slideKicker'),
+  slideTitle: document.getElementById('slideTitle'),
+  slideContent: document.getElementById('slideContent'),
+  speakerNotes: document.getElementById('speakerNotes'),
+  prevSlide: document.getElementById('prevSlide'),
+  nextSlide: document.getElementById('nextSlide'),
+  openFiles: document.getElementById('openFiles'),
+  fileSelectorModal: document.getElementById('fileSelectorModal'),
+  fileStatus: document.getElementById('fileStatus'),
+  fileList: document.getElementById('fileList'),
+  refreshFiles: document.getElementById('refreshFiles'),
+  fileButtonTemplate: document.getElementById('fileButtonTemplate'),
+  timerModal: document.getElementById('timerModal'),
+  timerForm: document.getElementById('timerForm'),
+  sessionLength: document.getElementById('sessionLength'),
+  skipTimer: document.getElementById('skipTimer'),
+};
+
+function init() {
+  bindEvents();
+  updateTimerDisplay();
+  renderSlide();
+  void loadSlideFiles();
+}
+
+function bindEvents() {
+  elements.prevSlide.addEventListener('click', () => goToSlide(state.currentSlide - 1));
+  elements.nextSlide.addEventListener('click', () => goToSlide(state.currentSlide + 1));
+  elements.openFiles.addEventListener('click', () => openModal(elements.fileSelectorModal));
+  elements.refreshFiles.addEventListener('click', () => void loadSlideFiles());
+  elements.timerToggle.addEventListener('click', onTimerToggle);
+  elements.timerForm.addEventListener('submit', onTimerSubmit);
+  elements.skipTimer.addEventListener('click', closeTimerModal);
+
+  document.addEventListener('keydown', onKeyDown);
+  elements.slideStage.addEventListener('touchstart', onTouchStart, { passive: true });
+  elements.slideStage.addEventListener('touchend', onTouchEnd, { passive: true });
+}
+
+async function loadSlideFiles() {
+  setFileStatus('Loading available slide files…');
+  elements.fileList.replaceChildren();
+  openModal(elements.fileSelectorModal);
+
+  try {
+    const payload = await fetchJson('/api/list-slides');
+    const files = normalizeFileList(payload);
+
+    if (!files.length) {
+      setFileStatus('No slide files were returned by the API.');
+      return;
+    }
+
+    setFileStatus('Select a deck to load.');
+    renderFileList(files);
+  } catch (error) {
+    setFileStatus(error.message || 'Unable to load slide files.');
+  }
+}
+
+function normalizeFileList(payload) {
+  const candidates = Array.isArray(payload)
+    ? payload
+    : Array.isArray(payload?.files)
+      ? payload.files
+      : Array.isArray(payload?.items)
+        ? payload.items
+        : [];
+
+  return candidates
+    .map((entry) => {
+      if (typeof entry === 'string') {
+        return entry;
+      }
+
+      if (entry && typeof entry.name === 'string') {
+        return entry.name;
+      }
+
+      if (entry && typeof entry.filename === 'string') {
+        return entry.filename;
+      }
+
+      return '';
+    })
+    .filter(Boolean);
+}
+
+function renderFileList(files) {
+  elements.fileList.replaceChildren();
+
+  files.forEach((filename) => {
+    const button = elements.fileButtonTemplate.content.firstElementChild.cloneNode(true);
+    button.textContent = filename;
+    button.dataset.filename = filename;
+    button.addEventListener('click', () => void loadSlideFile(filename));
+    elements.fileList.appendChild(button);
+  });
+}
+
+async function loadSlideFile(filename) {
+  setFileStatus(`Loading ${filename}…`);
+
+  try {
+    const { response, payload: data } = await fetchResponse(`/api/get-slide?filename=${encodeURIComponent(filename)}`);
+
+    if (!response.ok && data?.isValid === false) {
+      throw new Error(`Slide validation failed: ${formatErrors(data.errors)}`);
+    }
+
+    if (!response.ok) {
+      throw new Error(extractErrorMessage(data, response.statusText) || `Request failed with ${response.status}`);
+    }
+
+    if (!data?.isValid) {
+      throw new Error(`Slide validation failed: ${formatErrors(data?.errors)}`);
+    }
+
+    const slides = normalizeSlides(data);
+
+    if (!slides.length) {
+      throw new Error('The selected file did not contain any slides.');
+    }
+
+    state.selectedFile = filename;
+    state.deckTitle = typeof data?.slideSet?.title === 'string'
+      ? data.slideSet.title
+      : typeof data?.title === 'string'
+        ? data.title
+        : '';
+    state.slides = slides;
+    state.currentSlide = 0;
+    resetTimer();
+    closeModal(elements.fileSelectorModal);
+    renderSlide();
+    openTimerModal();
+  } catch (error) {
+    setFileStatus(error.message || `Unable to load ${filename}.`);
+  }
+}
+
+function normalizeSlides(payload) {
+  const candidates = Array.isArray(payload)
+    ? payload
+    : Array.isArray(payload?.slideSet?.slides)
+      ? payload.slideSet.slides
+      : Array.isArray(payload?.slides)
+        ? payload.slides
+        : [];
+
+  if (!candidates.length) {
+    throw new Error('Unexpected slide payload from API.');
+  }
+
+  return candidates.map(normalizeSlide).filter(Boolean);
+}
+
+function normalizeSlide(slide, index) {
+  if (typeof slide === 'string') {
+    const lines = slide.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    return {
+      headlines: lines.length ? lines : [`Slide ${index + 1}`],
+      bullets: [],
+      notes: '',
+    };
+  }
+
+  if (!slide || typeof slide !== 'object') {
+    return null;
+  }
+
+  const content = Array.isArray(slide.content)
+    ? slide.content.filter(Boolean)
+    : typeof slide.content === 'string'
+      ? slide.content.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
+      : [];
+
+  const paragraphs = Array.isArray(slide.paragraphs)
+    ? slide.paragraphs.map((line) => String(line).trim()).filter(Boolean)
+    : [];
+
+  const bullets = Array.isArray(slide.bullets)
+    ? slide.bullets.map((bullet) => String(bullet).trim()).filter(Boolean)
+    : [];
+
+  const headlineCandidates = Array.isArray(slide.headlines)
+    ? slide.headlines
+    : typeof slide.headlines === 'string'
+      ? [slide.headlines]
+      : typeof slide.title === 'string'
+        ? [slide.title, ...paragraphs, ...content]
+        : [...paragraphs, ...content];
+
+  const headlines = headlineCandidates.map((line) => String(line).trim()).filter(Boolean);
+
+  return {
+    headlines: headlines.length ? headlines : [`Slide ${index + 1}`],
+    bullets,
+    notes: typeof slide.notes === 'string' ? slide.notes : '',
+  };
+}
+
+function renderSlide() {
+  const totalSlides = state.slides.length;
+  const currentSlide = state.slides[state.currentSlide];
+
+  elements.slideCounter.textContent = `${totalSlides ? state.currentSlide + 1 : 0} / ${totalSlides}`;
+  elements.selectedFileLabel.textContent = state.selectedFile || 'No file loaded';
+  elements.prevSlide.disabled = state.currentSlide <= 0;
+  elements.nextSlide.disabled = !totalSlides || state.currentSlide >= totalSlides - 1;
+  elements.timerToggle.disabled = !totalSlides;
+
+  if (!currentSlide) {
+    elements.slideKicker.textContent = 'Ready';
+    elements.slideTitle.textContent = 'Choose a slide file to begin';
+    elements.slideContent.replaceChildren(createParagraph('Open a slide deck from the startup dialog to render your notes here.'));
+    elements.speakerNotes.classList.add('hidden');
+    elements.speakerNotes.replaceChildren();
+    updateTimerDisplay();
+    return;
+  }
+
+  const headlines = Array.isArray(currentSlide.headlines)
+    ? currentSlide.headlines.filter(Boolean)
+    : typeof currentSlide.headlines === 'string'
+      ? [currentSlide.headlines]
+      : [];
+
+  const [title, ...supportingHeadlines] = headlines.length
+    ? headlines
+    : [`Slide ${state.currentSlide + 1}`];
+
+  elements.slideKicker.textContent = state.deckTitle || `Slide ${state.currentSlide + 1}`;
+  elements.slideTitle.textContent = title;
+  elements.slideContent.replaceChildren();
+
+  if (!supportingHeadlines.length && !currentSlide.bullets.length) {
+    elements.slideContent.appendChild(createParagraph('No body content was provided for this slide.'));
+  } else {
+    supportingHeadlines.forEach((headline) => {
+      elements.slideContent.appendChild(createParagraph(headline));
+    });
+
+    if (currentSlide.bullets.length) {
+      const list = document.createElement('ul');
+      currentSlide.bullets.forEach((bullet) => {
+        const item = document.createElement('li');
+        item.textContent = bullet;
+        list.appendChild(item);
+      });
+      elements.slideContent.appendChild(list);
+    }
+  }
+
+  renderNotes(currentSlide.notes);
+  updateTimerDisplay();
+}
+
+function renderNotes(notes) {
+  elements.speakerNotes.replaceChildren();
+
+  if (!notes) {
+    elements.speakerNotes.classList.add('hidden');
+    return;
+  }
+
+  const heading = document.createElement('h3');
+  heading.textContent = 'Speaker notes';
+  elements.speakerNotes.appendChild(heading);
+
+  notes.split(/\r?\n/).filter(Boolean).forEach((noteLine) => {
+    elements.speakerNotes.appendChild(createParagraph(noteLine));
+  });
+
+  elements.speakerNotes.classList.remove('hidden');
+}
+
+function createParagraph(text) {
+  const paragraph = document.createElement('p');
+  paragraph.textContent = text;
+  return paragraph;
+}
+
+function goToSlide(index) {
+  if (!state.slides.length) {
+    return;
+  }
+
+  const boundedIndex = Math.max(0, Math.min(index, state.slides.length - 1));
+
+  if (boundedIndex === state.currentSlide) {
+    return;
+  }
+
+  state.currentSlide = boundedIndex;
+  renderSlide();
+}
+
+function onKeyDown(event) {
+  const activeTag = document.activeElement?.tagName;
+  if (activeTag === 'INPUT') {
+    return;
+  }
+
+  if (isModalOpen(elements.fileSelectorModal) || isModalOpen(elements.timerModal)) {
+    return;
+  }
+
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    goToSlide(state.currentSlide - 1);
+  }
+
+  if (event.key === 'ArrowRight') {
+    event.preventDefault();
+    goToSlide(state.currentSlide + 1);
+  }
+}
+
+function onTouchStart(event) {
+  const touch = event.changedTouches[0];
+  state.touchStartX = touch.clientX;
+  state.touchStartY = touch.clientY;
+  state.touchStartAt = Date.now();
+}
+
+function onTouchEnd(event) {
+  if (isModalOpen(elements.fileSelectorModal) || isModalOpen(elements.timerModal)) {
+    return;
+  }
+
+  const touch = event.changedTouches[0];
+  const deltaX = touch.clientX - state.touchStartX;
+  const deltaY = touch.clientY - state.touchStartY;
+  const elapsed = Date.now() - state.touchStartAt;
+
+  if (elapsed > 700 || Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY)) {
+    return;
+  }
+
+  if (deltaX < 0) {
+    goToSlide(state.currentSlide + 1);
+  } else {
+    goToSlide(state.currentSlide - 1);
+  }
+}
+
+function openTimerModal() {
+  if (state.currentSlide !== 0) {
+    return;
+  }
+
+  openModal(elements.timerModal);
+  elements.sessionLength.focus();
+  elements.sessionLength.select();
+}
+
+function closeTimerModal() {
+  closeModal(elements.timerModal);
+}
+
+function onTimerSubmit(event) {
+  event.preventDefault();
+  const minutes = Number(elements.sessionLength.value);
+
+  if (!Number.isFinite(minutes) || minutes <= 0) {
+    elements.sessionLength.focus();
+    return;
+  }
+
+  startTimer(minutes);
+  closeTimerModal();
+}
+
+function onTimerToggle() {
+  if (!state.slides.length) {
+    return;
+  }
+
+  if (!state.sessionLength) {
+    openTimerModal();
+    return;
+  }
+
+  if (state.timerRunning) {
+    pauseTimer();
+  } else {
+    resumeTimer();
+  }
+}
+
+function startTimer(minutes) {
+  state.sessionLength = minutes * 60;
+  state.elapsedTime = 0;
+  state.timerStartedAt = Date.now();
+  state.timerRunning = true;
+  startTimerInterval();
+  updateTimerDisplay();
+}
+
+function resumeTimer() {
+  state.timerStartedAt = Date.now() - state.elapsedTime * 1000;
+  state.timerRunning = true;
+  startTimerInterval();
+  updateTimerDisplay();
+}
+
+function pauseTimer() {
+  clearInterval(state.timerIntervalId);
+  state.timerIntervalId = null;
+  state.elapsedTime = Math.floor((Date.now() - state.timerStartedAt) / 1000);
+  state.timerStartedAt = null;
+  state.timerRunning = false;
+  updateTimerDisplay();
+}
+
+function resetTimer() {
+  clearInterval(state.timerIntervalId);
+  state.timerIntervalId = null;
+  state.timerRunning = false;
+  state.sessionLength = 0;
+  state.elapsedTime = 0;
+  state.timerStartedAt = null;
+  elements.timerToggle.textContent = 'Start timer';
+  updateTimerDisplay();
+}
+
+function startTimerInterval() {
+  clearInterval(state.timerIntervalId);
+  state.timerIntervalId = window.setInterval(() => {
+    state.elapsedTime = Math.floor((Date.now() - state.timerStartedAt) / 1000);
+    updateTimerDisplay();
+  }, 1000);
+  elements.timerToggle.textContent = 'Pause timer';
+}
+
+function updateTimerDisplay() {
+  if (state.timerRunning && state.timerStartedAt) {
+    state.elapsedTime = Math.floor((Date.now() - state.timerStartedAt) / 1000);
+  }
+
+  const remainingSeconds = state.sessionLength ? state.sessionLength - state.elapsedTime : null;
+  const slidesRemaining = state.slides.length ? state.slides.length - state.currentSlide : 0;
+  const meanSeconds = remainingSeconds === null || slidesRemaining <= 0
+    ? null
+    : Math.max(0, Math.floor(remainingSeconds / slidesRemaining));
+
+  elements.elapsedTime.textContent = formatDuration(Math.max(0, state.elapsedTime));
+  elements.remainingTime.textContent = remainingSeconds === null
+    ? '--:--'
+    : remainingSeconds >= 0
+      ? formatDuration(remainingSeconds)
+      : `-${formatDuration(Math.abs(remainingSeconds))}`;
+  elements.meanTime.textContent = meanSeconds === null ? '--:--' : formatDuration(meanSeconds);
+
+  if (!state.sessionLength) {
+    elements.timerToggle.textContent = 'Start timer';
+  } else if (state.timerRunning) {
+    elements.timerToggle.textContent = 'Pause timer';
+  } else {
+    elements.timerToggle.textContent = 'Resume timer';
+  }
+}
+
+function formatDuration(totalSeconds) {
+  const safeSeconds = Math.max(0, Math.floor(totalSeconds));
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const seconds = safeSeconds % 60;
+
+  if (hours > 0) {
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+async function fetchResponse(url) {
+  const response = await fetch(url, {
+    method: 'GET',
+    mode: 'cors',
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  const contentType = response.headers.get('content-type') || '';
+  const payload = contentType.includes('application/json')
+    ? await response.json()
+    : await response.text();
+
+  return { response, payload };
+}
+
+async function fetchJson(url) {
+  const { response, payload } = await fetchResponse(url);
+
+  if (!response.ok) {
+    throw new Error(extractErrorMessage(payload, response.statusText) || `Request failed with ${response.status}`);
+  }
+
+  return payload;
+}
+
+function formatErrors(errors) {
+  if (Array.isArray(errors) && errors.length) {
+    return errors.join('; ');
+  }
+
+  if (typeof errors === 'string' && errors.trim()) {
+    return errors.trim();
+  }
+
+  return 'Unknown error';
+}
+
+function extractErrorMessage(payload, fallback) {
+  if (typeof payload === 'string' && payload.trim()) {
+    return payload;
+  }
+
+  if (Array.isArray(payload?.errors) && payload.errors.length) {
+    return formatErrors(payload.errors);
+  }
+
+  if (typeof payload?.message === 'string' && payload.message.trim()) {
+    return payload.message.trim();
+  }
+
+  if (typeof payload?.error === 'string' && payload.error.trim()) {
+    const details = typeof payload?.details === 'string' && payload.details.trim()
+      ? ` ${payload.details.trim()}`
+      : '';
+    return `${payload.error.trim()}${details}`.trim();
+  }
+
+  return fallback;
+}
+
+function setFileStatus(message) {
+  elements.fileStatus.textContent = message;
+}
+
+function openModal(element) {
+  element.classList.add('is-open');
+  element.setAttribute('aria-hidden', 'false');
+}
+
+function closeModal(element) {
+  element.classList.remove('is-open');
+  element.setAttribute('aria-hidden', 'true');
+}
+
+function isModalOpen(element) {
+  return element.classList.contains('is-open');
+}
+
+window.addEventListener('beforeunload', () => clearInterval(state.timerIntervalId));
+document.addEventListener('DOMContentLoaded', init);

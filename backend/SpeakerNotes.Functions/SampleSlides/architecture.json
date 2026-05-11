@@ -1,0 +1,20 @@
+{
+  "title": "Backend Architecture",
+  "slides": [
+    {
+      "headlines": [
+        "Static Web App",
+        "Azure Functions",
+        "Blob Storage"
+      ]
+    },
+    {
+      "headlines": "Validation pipeline",
+      "bullets": [
+        "Load JSON from blob",
+        "Validate schema shape",
+        "Return typed payload or errors"
+      ]
+    }
+  ]
+}

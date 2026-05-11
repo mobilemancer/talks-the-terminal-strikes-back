@@ -26,6 +26,22 @@ Learn how to enhance your terminal experience with advanced agentic engineering 
 - Twitter/X: [@mobilemancer](https://twitter.com/mobilemancer)
 - Blog & LinkedIn: [mobilemancer.com](https://mobilemancer.com)
 
+## Backend API
+
+The Azure Functions backend for the speaker notes app lives in `backend\SpeakerNotes.Functions`.
+
+### Endpoints
+
+- `GET /api/list-slides` - returns available slide JSON filenames
+- `GET /api/get-slide?filename={name}` - returns `{ filename, isValid, slideSet, errors }`
+
+### Local setup
+
+1. Copy `local.settings.sample.json` to `local.settings.json`
+2. Configure either `SlideStorage__ConnectionString` or `SlideStorage__ServiceUri`
+3. For quick local smoke tests, set `SlideStorage__UseProjectSampleFiles=true`
+4. Run `func start`
+
 ## Resources
 
 - [Talk on Sessionize](https://sessionize.com/s/AndreasW/the-teminal-strikes-back-agentic-engineering-using/164489)
