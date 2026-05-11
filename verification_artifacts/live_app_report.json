@@ -1,0 +1,211 @@
+{
+  "base_url": "https://zealous-desert-09aaa9703.7.azurestaticapps.net",
+  "endpoint_checks": {
+    "list_slides": {
+      "status": 200,
+      "body": "[\"agenda.json\",\"architecture.json\",\"closing.json\"]"
+    },
+    "agenda": {
+      "status": 200,
+      "body": "{\"Filename\":\"agenda.json\",\"IsValid\":true,\"SlideSet\":{\"Title\":\"Opening Flow\",\"Slides\":[{\"Headlines\":\"The Terminal Strikes Back\",\"Bullets\":[\"CLI-native agent workflows\",\"Context management that scales\",\"Safer shipping with automation\"]},{\"Headlines\":[\"Why now?\",\"Why the terminal?\"],\"Bullets\":[\"Models got faster\",\"Toolchains became scriptable\"]},{\"Headlines\":\"Demo setup\",\"Bullets\":null}]},\"Errors\":[]}"
+    },
+    "missing": {
+      "status": 404,
+      "body": "{\"Filename\":\"missing.json\",\"IsValid\":false,\"SlideSet\":null,\"Errors\":[\"The requested slide file was not found in Blob Storage.\"]}"
+    }
+  },
+  "browser_checks": {
+    "screenshots": [
+      {
+        "label": "startup-modal",
+        "screenshot": "D:\\github\\public\\talks-the-terminal-strikes-back\\verification_artifacts\\startup-modal.png"
+      },
+      {
+        "label": "agenda-timer-modal",
+        "screenshot": "D:\\github\\public\\talks-the-terminal-strikes-back\\verification_artifacts\\agenda-timer-modal.png"
+      },
+      {
+        "label": "agenda-running-timer",
+        "screenshot": "D:\\github\\public\\talks-the-terminal-strikes-back\\verification_artifacts\\agenda-running-timer.png"
+      },
+      {
+        "label": "ipad-startup-modal",
+        "screenshot": "D:\\github\\public\\talks-the-terminal-strikes-back\\verification_artifacts\\ipad-startup-modal.png"
+      },
+      {
+        "label": "ipad-agenda",
+        "screenshot": "D:\\github\\public\\talks-the-terminal-strikes-back\\verification_artifacts\\ipad-agenda.png"
+      }
+    ],
+    "console_messages": [],
+    "page_errors": [],
+    "request_failures": [],
+    "api_responses": [
+      {
+        "url": "https://zealous-desert-09aaa9703.7.azurestaticapps.net/api/list-slides",
+        "status": 200
+      },
+      {
+        "url": "https://zealous-desert-09aaa9703.7.azurestaticapps.net/api/list-slides",
+        "status": 200
+      },
+      {
+        "url": "https://zealous-desert-09aaa9703.7.azurestaticapps.net/api/get-slide?filename=agenda.json",
+        "status": 200
+      }
+    ],
+    "startup_modal": {
+      "visible": true,
+      "status_text": "Select a deck to load.",
+      "files": [
+        "agenda.json",
+        "architecture.json",
+        "closing.json"
+      ],
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "headerHeight": 62.5,
+        "timerHeight": 61.375,
+        "slideCardHeight": 728.125,
+        "slideCardTop": 157.875,
+        "titleFontSize": "64px",
+        "contentFontSize": "31.36px",
+        "buttonTexts": [
+          "Start",
+          "Refresh",
+          "agenda.json",
+          "architecture.json",
+          "closing.json",
+          "Skip",
+          "Start timer"
+        ]
+      },
+      "list_slides_payload": [
+        "agenda.json",
+        "architecture.json",
+        "closing.json"
+      ]
+    },
+    "agenda_before_timer": {
+      "header": "Speaker Notes",
+      "deck_name": "Deck: Opening Flow \u2022 agenda.json",
+      "slide_kicker": "SLIDE 1 / 3",
+      "slide_title": "The Terminal Strikes Back",
+      "paragraphs": [],
+      "bullets": [
+        "CLI-native agent workflows",
+        "Context management that scales",
+        "Safer shipping with automation"
+      ],
+      "timer_button_text": "Start",
+      "layout": {
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "headerHeight": 62.5,
+        "timerHeight": 61.375,
+        "slideCardHeight": 728.125,
+        "slideCardTop": 157.875,
+        "titleFontSize": "64px",
+        "contentFontSize": "31.36px",
+        "buttonTexts": [
+          "Start",
+          "Refresh",
+          "agenda.json",
+          "architecture.json",
+          "closing.json",
+          "Skip",
+          "Start timer"
+        ]
+      }
+    },
+    "timer": {
+      "after_2s": {
+        "elapsed": "00:02",
+        "remaining": "00:58",
+        "mean": "00:19",
+        "button": "Pause"
+      },
+      "after_3s": {
+        "elapsed": "00:03",
+        "remaining": "00:57",
+        "mean": "00:19",
+        "button": "Pause"
+      }
+    },
+    "navigation": {
+      "after_arrow_right": {
+        "kicker": "SLIDE 2 / 3",
+        "title": "Why now?"
+      },
+      "after_arrow_left": {
+        "kicker": "SLIDE 1 / 3",
+        "title": "The Terminal Strikes Back"
+      },
+      "after_swipe_left": {
+        "kicker": "SLIDE 2 / 3",
+        "title": "Why now?"
+      },
+      "after_swipe_right": {
+        "kicker": "SLIDE 1 / 3",
+        "title": "The Terminal Strikes Back"
+      },
+      "timer_row_visible": true,
+      "timer_row_box": {
+        "x": 16,
+        "y": 86.5,
+        "width": 1248,
+        "height": 61.375
+      }
+    },
+    "scrolling": {
+      "metrics": {
+        "before": {
+          "scrollHeight": 266,
+          "clientHeight": 250,
+          "maxScroll": 16
+        },
+        "scrolled": 16
+      },
+      "scroll_reset_after_navigation": 0,
+      "slide_title_after_navigation": "Demo setup"
+    },
+    "invalid_slide_ui": {
+      "file_status": "Slide validation failed: The requested slide file was not found in Blob Storage.",
+      "load_slide_type": "function"
+    },
+    "ipad": {
+      "layout": {
+        "viewport": {
+          "width": 1024,
+          "height": 1366
+        },
+        "headerHeight": 58.96875,
+        "timerHeight": 61.375,
+        "slideCardHeight": 1197.65625,
+        "slideCardTop": 154.34375,
+        "titleFontSize": "51.2px",
+        "contentFontSize": "25.088px",
+        "buttonTexts": [
+          "Start",
+          "Refresh",
+          "agenda.json",
+          "architecture.json",
+          "closing.json",
+          "Skip",
+          "Start timer"
+        ]
+      },
+      "deck_name": "Deck: Opening Flow \u2022 agenda.json",
+      "slide_kicker": "SLIDE 1 / 3",
+      "slide_title": "The Terminal Strikes Back",
+      "nav_button_count": 0,
+      "swipe_forward_result": "SLIDE 2 / 3",
+      "keyboard_back_result": "SLIDE 1 / 3"
+    }
+  }
+}
