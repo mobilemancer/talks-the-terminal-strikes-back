@@ -126,17 +126,20 @@ async function loadSlideFile(filename) {
 
   try {
     const { response, payload: data } = await fetchResponse(`/api/get-slide?filename=${encodeURIComponent(filename)}`);
+    const isValid = data?.isValid ?? data?.IsValid;
+    const errors = data?.errors ?? data?.Errors;
+    const slideSet = data?.slideSet ?? data?.SlideSet;
 
-    if (!response.ok && data?.isValid === false) {
-      throw new Error(`Slide validation failed: ${formatErrors(data.errors)}`);
+    if (!response.ok && isValid === false) {
+      throw new Error(`Slide validation failed: ${formatErrors(errors)}`);
     }
 
     if (!response.ok) {
       throw new Error(extractErrorMessage(data, response.statusText) || `Request failed with ${response.status}`);
     }
 
-    if (!data?.isValid) {
-      throw new Error(`Slide validation failed: ${formatErrors(data?.errors)}`);
+    if (!isValid) {
+      throw new Error(`Slide validation failed: ${formatErrors(errors)}`);
     }
 
     const slides = normalizeSlides(data);
@@ -146,11 +149,15 @@ async function loadSlideFile(filename) {
     }
 
     state.selectedFile = filename;
-    state.deckTitle = typeof data?.slideSet?.title === 'string'
-      ? data.slideSet.title
-      : typeof data?.title === 'string'
-        ? data.title
-        : '';
+    state.deckTitle = typeof slideSet?.title === 'string'
+      ? slideSet.title
+      : typeof slideSet?.Title === 'string'
+        ? slideSet.Title
+        : typeof data?.title === 'string'
+          ? data.title
+          : typeof data?.Title === 'string'
+            ? data.Title
+            : '';
     state.slides = slides;
     state.currentSlide = 0;
     resetTimer();
@@ -163,13 +170,18 @@ async function loadSlideFile(filename) {
 }
 
 function normalizeSlides(payload) {
+  const slideSet = payload?.slideSet ?? payload?.SlideSet;
   const candidates = Array.isArray(payload)
     ? payload
-    : Array.isArray(payload?.slideSet?.slides)
-      ? payload.slideSet.slides
-      : Array.isArray(payload?.slides)
-        ? payload.slides
-        : [];
+    : Array.isArray(slideSet?.slides)
+      ? slideSet.slides
+      : Array.isArray(slideSet?.Slides)
+        ? slideSet.Slides
+        : Array.isArray(payload?.slides)
+          ? payload.slides
+          : Array.isArray(payload?.Slides)
+            ? payload.Slides
+            : [];
 
   if (!candidates.length) {
     throw new Error('Unexpected slide payload from API.');
@@ -192,26 +204,33 @@ function normalizeSlide(slide, index) {
     return null;
   }
 
-  const content = Array.isArray(slide.content)
-    ? slide.content.filter(Boolean)
-    : typeof slide.content === 'string'
-      ? slide.content.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
+  const contentValue = slide.content ?? slide.Content;
+  const paragraphsValue = slide.paragraphs ?? slide.Paragraphs;
+  const bulletsValue = slide.bullets ?? slide.Bullets;
+  const headlinesValue = slide.headlines ?? slide.Headlines;
+  const titleValue = slide.title ?? slide.Title;
+  const notesValue = slide.notes ?? slide.Notes;
+
+  const content = Array.isArray(contentValue)
+    ? contentValue.map((line) => String(line).trim()).filter(Boolean)
+    : typeof contentValue === 'string'
+      ? contentValue.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
       : [];
 
-  const paragraphs = Array.isArray(slide.paragraphs)
-    ? slide.paragraphs.map((line) => String(line).trim()).filter(Boolean)
+  const paragraphs = Array.isArray(paragraphsValue)
+    ? paragraphsValue.map((line) => String(line).trim()).filter(Boolean)
     : [];
 
-  const bullets = Array.isArray(slide.bullets)
-    ? slide.bullets.map((bullet) => String(bullet).trim()).filter(Boolean)
+  const bullets = Array.isArray(bulletsValue)
+    ? bulletsValue.map((bullet) => String(bullet).trim()).filter(Boolean)
     : [];
 
-  const headlineCandidates = Array.isArray(slide.headlines)
-    ? slide.headlines
-    : typeof slide.headlines === 'string'
-      ? [slide.headlines]
-      : typeof slide.title === 'string'
-        ? [slide.title, ...paragraphs, ...content]
+  const headlineCandidates = Array.isArray(headlinesValue)
+    ? headlinesValue
+    : typeof headlinesValue === 'string'
+      ? [headlinesValue]
+      : typeof titleValue === 'string'
+        ? [titleValue, ...paragraphs, ...content]
         : [...paragraphs, ...content];
 
   const headlines = headlineCandidates.map((line) => String(line).trim()).filter(Boolean);
@@ -219,7 +238,7 @@ function normalizeSlide(slide, index) {
   return {
     headlines: headlines.length ? headlines : [`Slide ${index + 1}`],
     bullets,
-    notes: typeof slide.notes === 'string' ? slide.notes : '',
+    notes: typeof notesValue === 'string' ? notesValue : '',
   };
 }
 
