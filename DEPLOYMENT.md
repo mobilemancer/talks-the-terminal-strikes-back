@@ -45,16 +45,34 @@ Slide decks are stored as JSON files in Azure Blob Storage. Each deck must follo
 {
   "slides": [
     {
-      "headlines": "Main Title" or ["Line 1", "Line 2"],
+      "headlines": "Main Title",
       "bullets": ["Point 1", "Point 2", "Point 3"]
+    },
+    {
+      "headlines": "Architecture at a glance",
+      "sections": [
+        {
+          "header": "Functions API",
+          "bullets": ["Lists decks", "Validates payloads"]
+        },
+        {
+          "header": "Blob Storage",
+          "bullets": ["Stores JSON slide decks"]
+        }
+      ]
     }
   ]
 }
 ```
 
 ### Field Definitions
-- **headlines** (string or array): Main headline(s) for the slide. Can be a single string or array of strings for multiple lines.
-- **bullets** (array, optional): Bullet points to display below headlines.
+- **headlines** (string or array, optional when `sections` is present): Main headline(s) for the slide.
+- **bullets** (array, optional): Legacy bullet points rendered when `sections` is not present.
+- **sections** (array, optional): Multi-section slide content.
+  - **header** (string, required): Section heading.
+  - **bullets** (array, optional): Bullet points for that section.
+
+A slide must provide either `headlines` or `sections`. Legacy slides remain supported.
 
 ### Example
 ```json
@@ -65,8 +83,21 @@ Slide decks are stored as JSON files in Azure Blob Storage. Each deck must follo
       "bullets": ["Agentic Engineering", "CLI-based Development", "Context Management"]
     },
     {
-      "headlines": ["Foundational", "Features"],
-      "bullets": ["Model selection", "Context management", "Extensibility"]
+      "headlines": "Architecture at a glance",
+      "sections": [
+        {
+          "header": "Static Web App",
+          "bullets": ["Serves the UI", "Calls backend APIs"]
+        },
+        {
+          "header": "Functions API",
+          "bullets": ["Lists files", "Validates slides"]
+        },
+        {
+          "header": "Blob Storage",
+          "bullets": ["Persists uploaded decks"]
+        }
+      ]
     },
     {
       "headlines": "Questions?",

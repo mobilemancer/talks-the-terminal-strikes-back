@@ -193,6 +193,7 @@ function normalizeSlide(slide, index) {
     return {
       headlines: lines.length ? lines : [`Slide ${index + 1}`],
       bullets: [],
+      sections: [],
       notes: '',
     };
   }
@@ -204,6 +205,7 @@ function normalizeSlide(slide, index) {
   const contentValue = slide.content ?? slide.Content;
   const paragraphsValue = slide.paragraphs ?? slide.Paragraphs;
   const bulletsValue = slide.bullets ?? slide.Bullets;
+  const sectionsValue = slide.sections ?? slide.Sections;
   const headlinesValue = slide.headlines ?? slide.Headlines;
   const titleValue = slide.title ?? slide.Title;
   const notesValue = slide.notes ?? slide.Notes;
@@ -222,6 +224,32 @@ function normalizeSlide(slide, index) {
     ? bulletsValue.map((bullet) => String(bullet).trim()).filter(Boolean)
     : [];
 
+  const sections = Array.isArray(sectionsValue)
+    ? sectionsValue
+      .map((section) => {
+        if (!section || typeof section !== 'object') {
+          return null;
+        }
+
+        const headerValue = section.header ?? section.Header;
+        const sectionBulletsValue = section.bullets ?? section.Bullets;
+        const header = typeof headerValue === 'string' ? headerValue.trim() : '';
+        const sectionBullets = Array.isArray(sectionBulletsValue)
+          ? sectionBulletsValue.map((bullet) => String(bullet).trim()).filter(Boolean)
+          : [];
+
+        if (!header) {
+          return null;
+        }
+
+        return {
+          header,
+          bullets: sectionBullets,
+        };
+      })
+      .filter(Boolean)
+    : [];
+
   const headlineCandidates = Array.isArray(headlinesValue)
     ? headlinesValue
     : typeof headlinesValue === 'string'
@@ -235,6 +263,7 @@ function normalizeSlide(slide, index) {
   return {
     headlines: headlines.length ? headlines : [`Slide ${index + 1}`],
     bullets,
+    sections,
     notes: typeof notesValue === 'string' ? notesValue : '',
   };
 }
@@ -266,25 +295,25 @@ function renderSlide() {
     ? headlines
     : [`Slide ${state.currentSlide + 1}`];
 
+  const hasSections = Array.isArray(currentSlide.sections) && currentSlide.sections.length > 0;
+
   elements.slideKicker.textContent = `Slide ${state.currentSlide + 1} / ${totalSlides}`;
   elements.slideTitle.textContent = title;
   elements.slideContent.replaceChildren();
 
-  if (!supportingHeadlines.length && !currentSlide.bullets.length) {
+  if (!supportingHeadlines.length && !currentSlide.bullets.length && !hasSections) {
     elements.slideContent.appendChild(createParagraph('No body content was provided for this slide.'));
   } else {
     supportingHeadlines.forEach((headline) => {
       elements.slideContent.appendChild(createParagraph(headline));
     });
 
-    if (currentSlide.bullets.length) {
-      const list = document.createElement('ul');
-      currentSlide.bullets.forEach((bullet) => {
-        const item = document.createElement('li');
-        item.textContent = bullet;
-        list.appendChild(item);
+    if (hasSections) {
+      currentSlide.sections.forEach((section) => {
+        elements.slideContent.appendChild(createSection(section));
       });
-      elements.slideContent.appendChild(list);
+    } else if (currentSlide.bullets.length) {
+      elements.slideContent.appendChild(createBulletList(currentSlide.bullets));
     }
   }
 
@@ -315,6 +344,37 @@ function createParagraph(text) {
   const paragraph = document.createElement('p');
   paragraph.textContent = text;
   return paragraph;
+}
+
+function createBulletList(items, className = '') {
+  const list = document.createElement('ul');
+  if (className) {
+    list.className = className;
+  }
+
+  items.forEach((bullet) => {
+    const item = document.createElement('li');
+    item.textContent = bullet;
+    list.appendChild(item);
+  });
+
+  return list;
+}
+
+function createSection(section) {
+  const element = document.createElement('section');
+  element.className = 'section';
+
+  const header = document.createElement('h3');
+  header.className = 'section-header';
+  header.textContent = section.header;
+  element.appendChild(header);
+
+  if (section.bullets.length) {
+    element.appendChild(createBulletList(section.bullets, 'section-bullets'));
+  }
+
+  return element;
 }
 
 function updateDeckName() {

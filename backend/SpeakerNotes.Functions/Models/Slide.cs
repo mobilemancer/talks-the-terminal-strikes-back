@@ -4,10 +4,42 @@ using System.Text.Json.Serialization;
 
 namespace SpeakerNotes.Functions.Models;
 
-public sealed class Slide
+public sealed class Slide : IValidatableObject
+{
+    public SlideHeadlines? Headlines { get; init; }
+
+    public IReadOnlyList<string>? Bullets { get; init; }
+
+    [MinLength(1)]
+    public IReadOnlyList<SlideSection>? Sections { get; init; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (HasHeadlinesContent() || Sections is { Count: > 0 })
+        {
+            yield break;
+        }
+
+        yield return new ValidationResult(
+            "A slide must define either headlines or sections.",
+            [nameof(Headlines), nameof(Sections)]);
+    }
+
+    private bool HasHeadlinesContent()
+    {
+        if (Headlines?.Items is { Count: > 0 })
+        {
+            return Headlines.Items.Any(item => !string.IsNullOrWhiteSpace(item));
+        }
+
+        return !string.IsNullOrWhiteSpace(Headlines?.Text);
+    }
+}
+
+public sealed class SlideSection
 {
     [Required]
-    public required SlideHeadlines Headlines { get; init; }
+    public required string Header { get; init; }
 
     public IReadOnlyList<string>? Bullets { get; init; }
 }

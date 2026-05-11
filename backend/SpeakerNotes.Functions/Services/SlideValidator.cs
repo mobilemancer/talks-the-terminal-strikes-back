@@ -113,11 +113,15 @@ public sealed class SlideValidator : ISlideValidator
             return;
         }
 
-        if (!slideElement.TryGetProperty("headlines", out var headlinesElement))
+        var hasHeadlines = slideElement.TryGetProperty("headlines", out var headlinesElement);
+        var hasSections = slideElement.TryGetProperty("sections", out var sectionsElement);
+
+        if (!hasHeadlines && !hasSections)
         {
-            errors.Add($"{path}.headlines is required.");
+            errors.Add($"{path} must contain either 'headlines' or 'sections'.");
         }
-        else
+
+        if (hasHeadlines)
         {
             ValidateHeadlines(headlinesElement, $"{path}.headlines", errors);
         }
@@ -125,6 +129,11 @@ public sealed class SlideValidator : ISlideValidator
         if (slideElement.TryGetProperty("bullets", out var bulletsElement))
         {
             ValidateStringArray(bulletsElement, $"{path}.bullets", errors, allowEmptyArray: true);
+        }
+
+        if (hasSections)
+        {
+            ValidateSections(sectionsElement, $"{path}.sections", errors);
         }
     }
 
@@ -144,6 +153,49 @@ public sealed class SlideValidator : ISlideValidator
             default:
                 errors.Add($"{path} must be either a string or an array of strings.");
                 break;
+        }
+    }
+
+    private static void ValidateSections(JsonElement sectionsElement, string path, ICollection<string> errors)
+    {
+        if (sectionsElement.ValueKind != JsonValueKind.Array)
+        {
+            errors.Add($"{path} must be an array.");
+            return;
+        }
+
+        if (sectionsElement.GetArrayLength() == 0)
+        {
+            errors.Add($"{path} must contain at least one section.");
+            return;
+        }
+
+        var index = 0;
+        foreach (var sectionElement in sectionsElement.EnumerateArray())
+        {
+            var sectionPath = $"{path}[{index}]";
+            if (sectionElement.ValueKind != JsonValueKind.Object)
+            {
+                errors.Add($"{sectionPath} must be an object.");
+                index++;
+                continue;
+            }
+
+            if (!sectionElement.TryGetProperty("header", out var headerElement))
+            {
+                errors.Add($"{sectionPath}.header is required.");
+            }
+            else if (headerElement.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(headerElement.GetString()))
+            {
+                errors.Add($"{sectionPath}.header must be a non-empty string.");
+            }
+
+            if (sectionElement.TryGetProperty("bullets", out var bulletsElement))
+            {
+                ValidateStringArray(bulletsElement, $"{sectionPath}.bullets", errors, allowEmptyArray: true);
+            }
+
+            index++;
         }
     }
 
@@ -198,12 +250,40 @@ public sealed class SlideValidator : ISlideValidator
                     ValidateDataAnnotations(slideSet.Slides[index], errors, $"$.slides[{index}]", visited);
                 }
                 break;
-            case Slide slide when slide.Bullets is not null:
-                for (var index = 0; index < slide.Bullets.Count; index++)
+            case Slide slide:
+                if (slide.Bullets is not null)
                 {
-                    if (string.IsNullOrWhiteSpace(slide.Bullets[index]))
+                    for (var index = 0; index < slide.Bullets.Count; index++)
                     {
-                        errors.Add($"{path}.bullets[{index}] must be a non-empty string.");
+                        if (string.IsNullOrWhiteSpace(slide.Bullets[index]))
+                        {
+                            errors.Add($"{path}.bullets[{index}] must be a non-empty string.");
+                        }
+                    }
+                }
+
+                if (slide.Sections is not null)
+                {
+                    for (var index = 0; index < slide.Sections.Count; index++)
+                    {
+                        ValidateDataAnnotations(slide.Sections[index], errors, $"{path}.sections[{index}]", visited);
+                    }
+                }
+                break;
+            case SlideSection section:
+                if (string.IsNullOrWhiteSpace(section.Header))
+                {
+                    errors.Add($"{path}.header must be a non-empty string.");
+                }
+
+                if (section.Bullets is not null)
+                {
+                    for (var index = 0; index < section.Bullets.Count; index++)
+                    {
+                        if (string.IsNullOrWhiteSpace(section.Bullets[index]))
+                        {
+                            errors.Add($"{path}.bullets[{index}] must be a non-empty string.");
+                        }
                     }
                 }
                 break;
