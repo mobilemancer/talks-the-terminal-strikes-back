@@ -99,38 +99,62 @@
     },
     {
       "headlines": "Enterprise-Managed Extensions",
-      "bullets": [
-        "Organizations can auto-install plugins for all developers",
-        "Enforce consistent tooling and workflows",
-        "Centralized governance for agents, hooks, and MCP configs",
-        "Ideal for regulated or large engineering teams"
+      "sections": [
+        {
+          "header": "Plugins & Marketplaces",
+          "bullets": [
+            "/plugin marketplace list - Browse available plugins",
+            "/plugin marketplace add - Add marketplace to your CLI",
+            "/plugin install - Auto-install for teams"
+          ]
+        },
+        {
+          "header": "Model Context Protocol (MCP)",
+          "bullets": [
+            "/mcp add - Connect external tools (Sentry, Notion, Azure, etc)",
+            "/mcp show - List configured MCP servers",
+            "Pre-configured for GitHub, extensible to any service"
+          ]
+        }
       ]
     },
     {
-      "headlines": "Background Tasks",
+      "headlines": "Background Tasks & Delegation",
       "bullets": [
-        "Run long tasks in the cloud without blocking your terminal",
-        "Continue working locally while Copilot executes remotely",
-        "Perfect for builds, migrations, and large refactors",
-        "Supports status checks and result retrieval"
+        "/tasks - View and manage background tasks",
+        "/delegate - Send work to GitHub, create PR automatically",
+        "Ctrl+X → b - Move current task to background mid-execution",
+        "/remote - Enable remote steering from GitHub web/mobile"
       ]
     },
     {
-      "headlines": "Hooks (Extend Copilot's Behavior)",
-      "bullets": [
-        "Intercept and reshape user prompts before they reach any agent",
-        "Add context, enforce rules, or auto-trigger skills",
-        "Build safety guards, macros, and custom routing logic",
-        "Can optionally run code locally without calling an LLM"
+      "headlines": "Skills & Custom Agents",
+      "sections": [
+        {
+          "header": "Agent Skills",
+          "bullets": [
+            "/skills list - Browse available skills",
+            "/skills info - Get skill details",
+            "SKILL.md files in .github/skills for custom workflows"
+          ]
+        },
+        {
+          "header": "Custom Instructions & Agents",
+          "bullets": [
+            "/init - Initialize repo with custom instructions",
+            "/instructions - Toggle instruction files",
+            "/agent - Select from available specialized agents"
+          ]
+        }
       ]
     },
     {
-      "headlines": "Self-Improvement (Experimental Mode)",
+      "headlines": "Self-Improvement & Experimentation",
       "bullets": [
-        "Copilot can scaffold its own extensions (skills, hooks, tools)",
-        "Can generate hooks that run without any LLM call",
-        "Can modify and improve the extensions it just created",
-        "Enables recursive 'Copilot improves Copilot' workflows"
+        "/experimental - Toggle experimental features on/off",
+        "/autopilot - Auto-continue multi-step tasks until complete",
+        "/fleet - Parallel subagent execution for speed",
+        "Shift+Tab - Cycle between Normal, Plan, and Autopilot modes"
       ]
     },
     {
