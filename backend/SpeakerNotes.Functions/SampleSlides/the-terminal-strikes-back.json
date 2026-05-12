@@ -109,21 +109,6 @@
             "/mcp show - List configured MCP servers",
             "Pre-configured for GitHub, extensible to any service"
           ]
-        },
-        {
-          "header": "LSP Support",
-          "bullets": [
-            "Language Server Protocol integration",
-            "/lsp show - List installed servers",
-            "/lsp test {language} - Verify installation"
-          ]
-        },
-        {
-          "header": "Config",
-          "bullets": [
-            "~/.copilot/config.json - User config",
-            ".github/lsp.json - Project LSP config"
-          ]
         }
       ]
     },
@@ -131,14 +116,6 @@
       "headlines": "Extensibility & Configuration II",
       "sections": [
         {
-          "header": "Plugins",
-          "bullets": [
-            "/plugin marketplace list",
-            "/plugin marketplace add",
-            "/plugin install"
-          ]
-        },
-        {
           "header": "LSP Support",
           "bullets": [
             "Language Server Protocol integration",
@@ -147,10 +124,31 @@
           ]
         },
         {
-          "header": "Config",
+          "header": "LSP Config",
           "bullets": [
-            "~/.copilot/config.json - User config",
-            ".github/lsp.json - Project LSP config"
+            "~/.copilot/lsp-config.json - User config",
+            ".github/lsp.json - In folder Project LSP config"
+          ]
+        }
+      ]
+    },
+    {
+      "headlines": "Extensibility & Configuration III",
+      "sections": [
+        {
+          "header": "Skills",
+          "bullets": [
+            "/skills list - Browse available skills",
+            "/skills info - Get skill details",
+            "SKILL.md files in .github/skills for custom workflows"
+          ]
+        },
+        {
+          "header": "Plugins",
+          "bullets": [
+            "/plugin marketplace list",
+            "/plugin marketplace add",
+            "/plugin install"
           ]
         }
       ]
@@ -159,7 +157,7 @@
       "headlines": "Enterprise-Managed Extensions",
       "sections": [
         {
-          "header": "Plugins & Marketplaces",
+          "header": "Private Plugin Marketplace",
           "bullets": [
             "Create a .github-private repository",
             "Add a settings.json file at .github/copilot/settings.json",
@@ -195,44 +193,21 @@
         "/tasks - View and manage background tasks",
         "/delegate - Send work to GitHub, create PR automatically",
         "Ctrl+X → b - Move current task to background mid-execution",
-        "/remote - Enable remote steering from GitHub web/mobile"
-      ]
-    },
-    {
-      "headlines": "Skills & Custom Agents",
-      "sections": [
-        {
-          "header": "Agent Skills",
-          "bullets": [
-            "/skills list - Browse available skills",
-            "/skills info - Get skill details",
-            "SKILL.md files in .github/skills for custom workflows"
-          ]
-        },
-        {
-          "header": "Custom Instructions & Agents",
-          "bullets": [
-            "/init - Initialize repo with custom instructions",
-            "/instructions - Toggle instruction files",
-            "/agent - Select from available specialized agents"
-          ]
-        }
+        "/keep-alive + /remote - Enable remote steering from GitHub web/mobile"
       ]
     },
     {
       "headlines": "Self-Improvement & Experimentation",
       "bullets": [
         "/experimental - Toggle experimental features on/off",
-        "/autopilot - Auto-continue multi-step tasks until complete",
-        "Shift+Tab - Cycle between Normal, Plan, and Autopilot modes"
+        "/experimental show"
       ]
     },
     {
       "headlines": "Coding Session Wrap-up",
       "bullets": [
         "/chronicle standup - Summary of work done",
-        "/chronicle tips - Key learnings",
-        "/remote + /keep-alive - Remote session management"
+        "/chronicle tips - Key learnings"
       ]
     },
     {
