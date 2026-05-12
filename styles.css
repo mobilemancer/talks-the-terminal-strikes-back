@@ -232,14 +232,14 @@ button:disabled {
 
 .slide-kicker {
   color: var(--accent);
-  font-size: 0.82rem;
+  font-size: 1.11rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .slide-card h2 {
-  font-size: clamp(2rem, 5vw, 4.4rem);
+  font-size: clamp(2.7rem, 6.75vw, 5.94rem);
   line-height: 0.97;
   letter-spacing: -0.05em;
   text-wrap: balance;
@@ -248,7 +248,7 @@ button:disabled {
 .slide-content {
   display: grid;
   gap: 1rem;
-  font-size: clamp(1.2rem, 2.45vw, 2.05rem);
+  font-size: clamp(1.62rem, 3.31vw, 2.77rem);
   line-height: 1.42;
 }
 
@@ -262,22 +262,22 @@ button:disabled {
 
 .slide-content li+li,
 .slide-content p+p {
-  margin-top: 0.72rem;
+  margin-top: 0.86rem;
 }
 
 .section {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.54rem;
 }
 
 .section + .section {
-  margin-top: 0.15rem;
-  padding-top: 0.75rem;
+  margin-top: 0.18rem;
+  padding-top: 0.9rem;
   border-top: 1px solid rgba(32, 54, 86, 0.08);
 }
 
 .section-header {
-  font-size: 1.08em;
+  font-size: 1.46em;
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.03em;
@@ -288,14 +288,14 @@ button:disabled {
 }
 
 .section-bullets li + li {
-  margin-top: 0.56rem;
+  margin-top: 0.67rem;
 }
 
 .speaker-notes {
   margin-top: 0.2rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(32, 54, 86, 0.12);
-  font-size: clamp(1rem, 1.8vw, 1.35rem);
+  font-size: clamp(1.35rem, 2.43vw, 1.82rem);
   line-height: 1.52;
 }
 
