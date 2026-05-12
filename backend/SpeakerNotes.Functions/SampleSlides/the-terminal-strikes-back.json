@@ -25,9 +25,8 @@
       "bullets": [
         "/update - CLI updates (certain installers)",
         "/models - Switch between available models",
-        "/ide - View diffs and code changes",
-        "/context - Manage workspace context",
-        "/env - Configure environment variables"
+        "/env - Show all extensions",
+        "! - to run shell commands"
       ]
     },
     {
@@ -49,24 +48,25 @@
         "/session - View session history",
         "copilot --resume - Continue previous session",
         "copilot --continue - Resume with context",
-        "/share - Share session with others"
+        "/share - Writes session to disk "
       ]
     },
     {
       "headlines": "Workspace Control",
       "bullets": [
         "/add-dir - Add directory to context",
-        "/ide - Visual diff exploration",
-        "/fleet - Launch multiple agents in parallel"
+        "/context - Manage workspace context",
+        "/ide - Visual diff exploration"
       ]
     },
     {
-      "headlines": "Agent Capabilities",
+      "headlines": "Agents",
       "bullets": [
+        "/tasks - see all running agents",
         "Rubberduck - Code review with GPT-5.4",
-        "Task agents - Parallel execution",
-        "Explore agents - Codebase investigation",
-        "Custom agents - Project-specific workflows"
+        "Explore - Codebase investigation, 'pliz explore ...'",
+        "/fleet - Parallel subagent execution for speed",
+        "/agent - Create specific agents"
       ]
     },
     {
@@ -103,9 +103,9 @@
         {
           "header": "Plugins & Marketplaces",
           "bullets": [
-            "/plugin marketplace list - Browse available plugins",
-            "/plugin marketplace add - Add marketplace to your CLI",
-            "/plugin install - Auto-install for teams"
+            "Create a .github-private repository",
+            "Add a settings.json file at .github/copilot/settings.json",
+            "extraKnownMarketplaces & enabledPlugins"
           ]
         },
         {
@@ -153,7 +153,6 @@
       "bullets": [
         "/experimental - Toggle experimental features on/off",
         "/autopilot - Auto-continue multi-step tasks until complete",
-        "/fleet - Parallel subagent execution for speed",
         "Shift+Tab - Cycle between Normal, Plan, and Autopilot modes"
       ]
     },
