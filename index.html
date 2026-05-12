@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Speaker Notes</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <div class="app-container">
     <header class="app-header">
       <h1>Speaker Notes</h1>
-      <p id="deckName" class="deck-name" role="button" tabindex="0" aria-label="Open deck selector">Deck: Choose a deck</p>
+      <p id="deckName" class="deck-name" role="button" tabindex="0" aria-label="Open deck selector">Deck: Choose a deck
+      </p>
     </header>
 
     <div class="timer-row" aria-live="polite" aria-atomic="true">
@@ -47,7 +50,8 @@
     </article>
   </div>
 
-  <div id="fileSelectorModal" class="modal-backdrop is-open" role="dialog" aria-modal="true" aria-labelledby="fileModalTitle">
+  <div id="fileSelectorModal" class="modal-backdrop is-open" role="dialog" aria-modal="true"
+    aria-labelledby="fileModalTitle">
     <section class="modal-card">
       <header class="modal-header">
         <div>
@@ -62,7 +66,8 @@
     </section>
   </div>
 
-  <div id="timerModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="timerModalTitle" aria-hidden="true">
+  <div id="timerModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="timerModalTitle"
+    aria-hidden="true">
     <section class="modal-card compact-modal">
       <header class="modal-header">
         <div>
@@ -70,10 +75,12 @@
           <h2 id="timerModalTitle">Set session length</h2>
         </div>
       </header>
-      <p class="modal-copy">Start a presentation timer for this deck. The mean time is calculated from the remaining slides.</p>
+      <p class="modal-copy">Start a presentation timer for this deck. The mean time is calculated from the remaining
+        slides.</p>
       <form id="timerForm" class="timer-form">
         <label for="sessionLength" class="input-label">Minutes</label>
-        <input id="sessionLength" name="sessionLength" type="number" min="1" step="1" value="30" inputmode="numeric" required>
+        <input id="sessionLength" name="sessionLength" type="number" min="1" step="1" value="40" inputmode="numeric"
+          required>
         <div class="modal-actions">
           <button id="skipTimer" class="secondary-button" type="button">Skip</button>
           <button class="primary-button" type="submit">Start timer</button>
@@ -88,4 +95,5 @@
 
   <script src="main.js" defer></script>
 </body>
+
 </html>

@@ -1,6 +1,16 @@
 {
-  "title": "Main Features",
+  "title": "The Terminal Strikes Back",
   "slides": [
+    {
+      "headlines": "What is Github Copilot CLI",
+      "bullets": [
+        "A full agentic dev environment in your terminal",
+        "Specialized built-in agents — Explore for codebase analysis, Task for builds/tests, Code Review for PR reviews, running in parallel when needed ",
+        "Background delegation — prefix any prompt with & to offload work to Copilot cloud agent, freeing your terminal while it works ",
+        "Remote control — kick off a Copilot cloud session at home, get a QR code, continue on the train",
+        "Deeply extensible — custom agents, markdown-based skills, MCP servers, LSP code intelligence, and hooks at every lifecycle point"
+      ]
+    },
     {
       "headlines": "Two Operating Modes",
       "sections": [
@@ -30,47 +40,95 @@
       ]
     },
     {
-      "headlines": "Advanced Features",
+      "headlines": "Different Modes",
       "sections": [
         {
           "header": "Modes",
           "bullets": [
-            "Normal mode - Standard operation",
-            "Plan mode - Structured planning ([[PLAN]])",
+            "Normal mode - Standard operation, ask as it goes along",
+            "Plan mode - Structured planning agent, ask all questions upfront",
             "Autopilot - Autonomous agents"
+          ]
+        },
+        {
+          "header": "Asks for rights",
+          "bullets": [
+            "Asks for trust of folder",
+            "Asks for using tools, cli commands, editing files, accessing web pages",
+            "Autopilot - Asks for full access to everything",
+            "copilot --yolo alt /yolo"
           ]
         }
       ]
     },
     {
-      "headlines": "Session Management",
+      "headlines": "When starting coding - Session Management",
       "bullets": [
+        "copilot --continue - Resume previous session",
+        "copilot --resume - Select session",
         "/session - View session history",
-        "copilot --resume - Continue previous session",
-        "copilot --continue - Resume with context",
-        "/share - Writes session to disk "
+        "/share - Writes session to disk",
+        "/clear - Abandon session and start fresh"
       ]
     },
     {
       "headlines": "Workspace Control",
       "bullets": [
+        "/init - Initialize repo with custom instructions",
+        "/instructions - Toggle instruction files",
         "/add-dir - Add directory to context",
         "/context - Manage workspace context",
         "/ide - Visual diff exploration"
       ]
     },
     {
-      "headlines": "Agents",
+      "headlines": "Built in Agents",
       "bullets": [
         "/tasks - see all running agents",
         "Rubberduck - Code review with GPT-5.4",
         "Explore - Codebase investigation, 'pliz explore ...'",
         "/fleet - Parallel subagent execution for speed",
-        "/agent - Create specific agents"
+        "/review - Code review Agent"
       ]
     },
     {
-      "headlines": "Extensibility & Configuration",
+      "headlines": "Extensibility & Configuration I",
+      "sections": [
+        {
+          "header": "Agents",
+          "bullets": [
+            "/agent - Create specific agents"
+          ]
+        },
+        {
+          "header": "Model Context Protocol (MCP)",
+          "bullets": [
+            "/mcp - See any added MCP servers, and tools",
+            "/mcp add - Connect external tools (Sentry, Notion, Azure, etc)",
+            "/mcp add - Context 7, https://mcp.context7.com/mcp - ctrl+s ",
+            "/mcp show - List configured MCP servers",
+            "Pre-configured for GitHub, extensible to any service"
+          ]
+        },
+        {
+          "header": "LSP Support",
+          "bullets": [
+            "Language Server Protocol integration",
+            "/lsp show - List installed servers",
+            "/lsp test {language} - Verify installation"
+          ]
+        },
+        {
+          "header": "Config",
+          "bullets": [
+            "~/.copilot/config.json - User config",
+            ".github/lsp.json - Project LSP config"
+          ]
+        }
+      ]
+    },
+    {
+      "headlines": "Extensibility & Configuration II",
       "sections": [
         {
           "header": "Plugins",
@@ -119,6 +177,19 @@
       ]
     },
     {
+      "headlines": "Smarter Extensibility",
+      "sections": [
+        {
+          "header": "CLI tools",
+          "bullets": [
+            "The models are remarkably good at using CLI tools",
+            "ie Playwright CLI, Github CLI, Azure CLI",
+            "Costs less tokens - does not polute context!"
+          ]
+        }
+      ]
+    },
+    {
       "headlines": "Background Tasks & Delegation",
       "bullets": [
         "/tasks - View and manage background tasks",
@@ -157,11 +228,19 @@
       ]
     },
     {
-      "headlines": "Session Wrap-up",
+      "headlines": "Coding Session Wrap-up",
       "bullets": [
         "/chronicle standup - Summary of work done",
         "/chronicle tips - Key learnings",
         "/remote + /keep-alive - Remote session management"
+      ]
+    },
+    {
+      "headlines": "Talk Wrap-up",
+      "bullets": [
+        "And with that we are done",
+        "Thank you so much for attending this talk 💜",
+        "Don't forget to connect!"
       ]
     }
   ]
