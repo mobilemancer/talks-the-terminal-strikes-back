@@ -1,4 +1,4 @@
-import { CANVAS, COLORS, SCORING, GAME } from './constants.js';
+import { CANVAS, COLORS, SCORING, GAME, CENTIPEDE } from './constants.js';
 import { Player } from './player.js';
 import { Projectile } from './projectile.js';
 import { Centipede } from './centipede.js';
