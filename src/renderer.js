@@ -3,12 +3,39 @@ import { CANVAS, COLORS } from './constants.js';
 export class Renderer {
   constructor(ctx) {
     this.ctx = ctx;
+    this.stars = this.generateStars();
+    this.time = 0;
+  }
+
+  generateStars() {
+    const stars = [];
+    for (let i = 0; i < 100; i++) {
+      stars.push({
+        x: Math.random() * CANVAS.WIDTH,
+        y: Math.random() * CANVAS.HEIGHT,
+        size: Math.random() * 1.5,
+        opacity: Math.random() * 0.5 + 0.2,
+      });
+    }
+    return stars;
   }
 
   clear() {
     this.ctx.fillStyle = COLORS.DARK_BG;
     this.ctx.fillRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT);
+    this.drawStarfield();
     this.drawGrid();
+    this.time++;
+  }
+
+  drawStarfield() {
+    this.stars.forEach(star => {
+      const flicker = Math.sin(this.time * 0.02 + star.x + star.y) * 0.3 + 0.7;
+      this.ctx.fillStyle = `rgba(0, 255, 255, ${star.opacity * flicker})`;
+      this.ctx.beginPath();
+      this.ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+      this.ctx.fill();
+    });
   }
 
   drawGrid() {
@@ -77,16 +104,30 @@ export class Renderer {
 
   drawHUD(score, lives, level, activePowerups) {
     this.drawText(`SCORE: ${score}`, 20, 30, COLORS.NEON_CYAN, 14);
-    this.drawText(`LIVES: ${lives}`, 20, 60, COLORS.NEON_GREEN, 14);
+    
+    // Draw lives with color change for low lives
+    const livesColor = lives === 1 ? COLORS.NEON_PINK : COLORS.NEON_GREEN;
+    this.drawText(`LIVES: ${lives}`, 20, 60, livesColor, 14);
+    
     this.drawText(`LEVEL: ${level}`, CANVAS.WIDTH - 150, 30, COLORS.NEON_PINK, 14);
 
+    // Draw active powerups with timers
     let powerupText = 'POWER: ';
     if (activePowerups.length > 0) {
-      powerupText += activePowerups.map(p => `${p.type}(${Math.floor(p.timeLeft)}s)`).join(' + ');
+      powerupText += activePowerups.map(p => {
+        const timeStr = Math.max(0, Math.floor(p.timeLeft)).toString().padStart(2, '0');
+        return `${p.type[0].toUpperCase()}[${timeStr}s]`;
+      }).join(' ');
     } else {
       powerupText += 'NONE';
     }
-    this.drawText(powerupText, CANVAS.WIDTH - 400, 60, COLORS.NEON_YELLOW, 12);
+    this.drawText(powerupText, CANVAS.WIDTH - 450, 60, COLORS.NEON_YELLOW, 11);
+    
+    // Shield indicator
+    const hasShield = activePowerups.some(p => p.type === 'shield');
+    if (hasShield) {
+      this.drawText('⚔ SHIELD ACTIVE ⚔', CANVAS.WIDTH / 2, 30, COLORS.NEON_GREEN, 12, 'center');
+    }
   }
 
   drawLevelComplete(level) {
@@ -148,12 +189,27 @@ export class Renderer {
   drawMenu() {
     this.ctx.fillStyle = COLORS.DARK_BG;
     this.ctx.fillRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT);
+    this.drawStarfield();
     this.drawGrid();
-    this.drawText('CENTIPEDE', CANVAS.WIDTH / 2, 80, COLORS.NEON_CYAN, 48, 'center');
-    this.drawText('80\'s ARCADE EDITION', CANVAS.WIDTH / 2, 140, COLORS.NEON_PINK, 24, 'center');
-    this.drawText('Arrow Keys - Move', CANVAS.WIDTH / 2, 240, COLORS.NEON_GREEN, 14, 'center');
-    this.drawText('Space - Shoot', CANVAS.WIDTH / 2, 270, COLORS.NEON_GREEN, 14, 'center');
-    this.drawText('Catch powerups for special abilities!', CANVAS.WIDTH / 2, 330, COLORS.NEON_YELLOW, 12, 'center');
-    this.drawText('Press SPACE to Start', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 100, COLORS.NEON_CYAN, 16, 'center');
+
+    this.drawText('CENTIPEDE', CANVAS.WIDTH / 2, 50, COLORS.NEON_CYAN, 48, 'center');
+    this.drawText('80\'s ARCADE EDITION', CANVAS.WIDTH / 2, 100, COLORS.NEON_PINK, 20, 'center');
+
+    const y1 = 160;
+    this.drawText('Controls:', CANVAS.WIDTH / 2, y1, COLORS.NEON_GREEN, 14, 'center');
+    this.drawText('← → Arrow Keys - Move', CANVAS.WIDTH / 2, y1 + 30, COLORS.NEON_CYAN, 12, 'center');
+    this.drawText('SPACE - Shoot', CANVAS.WIDTH / 2, y1 + 50, COLORS.NEON_CYAN, 12, 'center');
+
+    const y2 = 270;
+    this.drawText('Powerups:', CANVAS.WIDTH / 2, y2, COLORS.NEON_YELLOW, 14, 'center');
+    this.drawText('M: Multishot  S: Spread  L: Laser  B: Bomb  H: Shield', CANVAS.WIDTH / 2, y2 + 30, COLORS.NEON_CYAN, 10, 'center');
+    this.drawText('Catch falling powerups for special abilities!', CANVAS.WIDTH / 2, y2 + 50, COLORS.NEON_GREEN, 11, 'center');
+
+    const y3 = 390;
+    this.drawText('Features:', CANVAS.WIDTH / 2, y3, COLORS.NEON_PINK, 14, 'center');
+    this.drawText('Destroy centipedes • Collect powerups • Survive waves', CANVAS.WIDTH / 2, y3 + 30, COLORS.NEON_CYAN, 10, 'center');
+
+    this.drawText('Press SPACE to Start', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 80, COLORS.NEON_GREEN, 16, 'center');
+    this.drawText('Progressive difficulty • Multiple lives', CANVAS.WIDTH / 2, CANVAS.HEIGHT - 40, COLORS.NEON_YELLOW, 11, 'center');
   }
 }
