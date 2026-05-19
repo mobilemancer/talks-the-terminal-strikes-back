@@ -187,7 +187,7 @@ printf '\033[%d;%dH' $(( IR + 2 )) "$IC3"; type_print "$links_text" "${BGRN}" 0
 
 # ── Promo: AI-Fokus conference ──────────────────────────────────
 pause 0.2
-PROMO="Register: ai-fokus.se — Use code LinNUG26"
+PROMO="AI fokus - 2026"
 PROMO_C=$(( (COLS - ${#PROMO}) / 2 ))
 printf '\033[%d;%dH%s' $(( ROWS - 3 )) "$PROMO_C" "${BD}${BYLW}${PROMO}${R}"
 

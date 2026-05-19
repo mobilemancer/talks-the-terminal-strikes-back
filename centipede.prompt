@@ -1,8 +1,0 @@
-Create a Centipede. 
-With 80's aestehetics, neon lights, and let it be just as forgiving as video games were in the 80's.
-Make lot's of power ups that the user can get after shooting the Centipede, or mushrooms.
-The powerups fall towards the player, and the player needs to catch them to get them.
-The player can get multiple overlapping powerups, like multishot + spread shot + laser + bomb shot.
-Points are given for shooting Centipede or mushrooms.
-Use HMTL, the canvas element and vanilla js. 
-Use vite dev server. No nead to render a README file, an tests or other artifacts.
